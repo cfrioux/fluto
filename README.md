@@ -1,11 +1,11 @@
 # Installation and requirements
 
-## requirements
+## requirements / quick start
 
 * Pyasp
-`conda install -c bioconda pyasp`
-* Cplex
-* Clingo compiled with Python support
+( `conda install -c bioconda pyasp` or pip install)
+* Cplex for [python](https://www.ibm.com/support/knowledgecenter/SSSA5P_12.5.1/ilog.odms.cplex.help/CPLEX/GettingStarted/topics/set_up/Python_setup.html)
+* Clingo ( `conda install -c potassco clingo`)
 
 ## install
 
