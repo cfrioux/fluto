@@ -1,5 +1,7 @@
 # Installation and requirements
 
+Python2.7
+
 ## requirements / quick start
 
 * Pyasp
