@@ -1,6 +1,6 @@
 # Requirements
 
-* IBM Cplex ILOG optimization suite (version 12.6.3 is tested)
+* IBM Cplex ILOG optimization suite (version 12.6.3, 12.7 and 12.8 are tested)
 * Clingo Python package
 * PyASP Python package
 
