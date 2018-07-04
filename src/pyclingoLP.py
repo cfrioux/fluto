@@ -53,22 +53,22 @@ class Propagator:
 
         def print_assignment(self, show):
             global lp_assignment #dedicated to clemence: define a global variable
-            ''' #uncomment to see evolution of solving and stats
-            print ''
-            print 'LP Solver output'
+            '''#uncomment to see evolution of solving and stats
+            print('')
+            print('LP Solver output')
             if show:
-                print self.stats
-                print ''
-                print 'solution'
-                print self.current_assignment
-                print ''
-                print self.times_print
-                print ''
+                print(self.stats)
+                print('')
+                print('solution')
+                print(self.current_assignment)
+                print('')
+                print(self.times_print)
+                print('')
             else:
-                print self.current_assignment
-                print ''
-                print self.times_print
-                print ''
+                print(self.current_assignment)
+                print('')
+                print(self.times_print)
+                print('')
             '''
             lp_assignment = self.current_assignment #dedicated to clemence: copy value of print_assignment to global variable
 
@@ -94,7 +94,7 @@ class Propagator:
             lp_solver_class = globals()[self.__solver]
             state.lp = lp_solver_class(self.__varpos, self.__bounds, self.__ilp)
         except:
-            print 'No wrapper class of ', self.__solver, ' found!'
+            print('No wrapper class of ', self.__solver, ' found!')
             exit()
 
 
@@ -472,14 +472,14 @@ class Propagator:
         if (state.recent_active != [] or state.oclit_recent_active == 1) and state.lits_current*100 / self.__lits_total_num >= self.__prop_heur:
             self.__solve(state)
             if self.__trace:
-                print ''
-                print 'propagate with ', state.lits_current*100 / state.total_lits, '%', changes
+                print('')
+                print('propagate with ', state.lits_current*100 / state.total_lits, '%', changes)
                 for constr in state.clist:
-                    print state.clist[constr]
-                print 'lp_trail: ', state.lp_trail
-                print 'cond_trail: ', state.cond_trail
-                print 'eq_trail: ', state.eq_trail
-                print ''
+                    print(state.clist[constr])
+                print('lp_trail: ', state.lp_trail)
+                print('cond_trail: ', state.cond_trail)
+                print('eq_trail: ', state.eq_trail)
+                print('')
             if state.lp.is_valid() and not self.__check_consistency(control, state):
                 end = time.clock()
                 self.__proptime += end-start
@@ -538,20 +538,20 @@ class Propagator:
         self.__checkcalls += 1
         self.__time = self.__time + end-start
         #times = state.lp.get_time()
-        #print ''
+        #print('')
         #if self.__debug > 0:
-        #    print 'Calls init: ', self.__initcalls, '      Time init:  ', self.__inittime
-        #    print 'Calls propagate: ', self.__propcalls, '      Time propagate:  ', self.__proptime
-        #    print 'Calls undo: ', self.__undocalls, '      Time undo:  ', self.__undotime
-        #    print 'Calls add: ', times[2], '      Time add:  ', times[3]
-        #    print 'Calls reset: ', times[4], '      Time reset:  ', times[5]
-        #    print 'Calls check: ', self.__checkcalls, '      Time check:  ', self.__checktime
+        #    print('Calls init: ', self.__initcalls, '      Time init:  ', self.__inittime)
+        #    print('Calls propagate: ', self.__propcalls, '      Time propagate:  ', self.__proptime)
+        #    print('Calls undo: ', self.__undocalls, '      Time undo:  ', self.__undotime)
+        #    print('Calls add: ', times[2], '      Time add:  ', times[3])
+        #    print('Calls reset: ', times[4], '      Time reset:  ', times[5])
+        #    print('Calls check: ', self.__checkcalls, '      Time check:  ', self.__checktime)
         #if self.__solver == 'lps':
-        #    print 'LP solver calls: ', times[0], '   Time lp_solve :  ', times[1]
+        #    print('LP solver calls: ', times[0], '   Time lp_solve :  ', times[1])
         #elif self.__solver == 'cplx':
-        #    print 'LP solver calls: ', times[0], '   Time cplex :  ', times[1]
-        #print 'Time propagator:  ', self.__time
-        #print ''
+        #    print('LP solver calls: ', times[0], '   Time cplex :  ', times[1])
+        #print('Time propagator:  ', self.__time)
+        #print('')
         return True
 
 
@@ -625,26 +625,26 @@ class Propagator:
             core_confl = self.__core_confl(state, [], active_cnums)
             clause = self.__get_confl(state, core_confl)
             if self.__trace:
-                print ''
-                print 'core conflict constraints: '
+                print('')
+                print('core conflict constraints: ')
                 for confl_cnum in core_confl:
-                    print state.clist[confl_cnum]
-                print ''
+                    print(state.clist[confl_cnum])
+                print('')
             if not control.add_clause(clause) or not control.propagate():
                 return False
-            print 'If this was printed, then I did something really wrong!'
+            print('If this was printed, then I did something really wrong!')
         if not state.lp.is_sat():
             active_cnums = [cnum for cnum in state.active_cnum if state.active_cnum[cnum][0] == 0 and state.active_cnum[cnum][1] != 0]
             clause = self.__get_confl(state, active_cnums)
             if self.__trace:
-                print ''
-                print 'conflict constraints: '
+                print('')
+                print('conflict constraints: ')
                 for confl_cnum in active_cnums:
-                    print state.clist[confl_cnum]
-                print ''
+                    print(state.clist[confl_cnum])
+                print('')
             if not control.add_clause(clause) or not control.propagate():
                 return False
-            print 'If this was printed, then I did something really wrong!'
+            print('If this was printed, then I did something really wrong!')
         return True
 
 
@@ -1051,10 +1051,16 @@ def main(prg):
     prop = Propagator(prg.get_const("show"), prg.get_const("accuracy"), prg.get_const("nstrict"), prg.get_const("epsilon"), prg.get_const("solver"), prg.get_const("trace"), prg.get_const("core_confl"), prg.get_const("prop_heur"), prg.get_const("debug"), prg.get_const("ilp"))
     prg.register_propagator(prop)
     prg.ground([("p", [])])
+    #configurate the solver
+    #prg.configuration.solve.models = 0
+    # prg.configuration.configuration="crafty"
+    # prg.configuration.solver.opt_strategy="usc,oll"
+    # prg.configuration.solve.enum_mode="brave"
+    #prg.configuration.solve.opt_mode="optN"
     prg.solve(on_model = print_assignment)
 
-    #print lp_assignment #dedicated to clemence: example print tuple or print second argument by "lp_assignment[1]"
-    #print model #dedicated to clemence: example print ASP model
+    #print(lp_assignment) #dedicated to clemence: example print tuple or print second argument by "lp_assignment[1]"
+    # print(model) #dedicated to clemence: example print ASP model
     termsetfrommodel = TermSet.from_string(model)
     return(lp_assignment,termsetfrommodel)
 

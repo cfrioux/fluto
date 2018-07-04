@@ -64,12 +64,13 @@ def aspsolve_hybride(instance, encoding, export):
     # print(problem)
 
     clictrl = clingo.Control(['--warn=none'])
+    # clictrl.configuration.configuration = "trendy"
     clictrl.add("p", [], problem)
 
     last_assignement, sol_model = pyclingoLP.main(clictrl)
     #print("plopi")
-    #print(last_assignement)
-    #print(sol_model)
+    # print(last_assignement)
+    # print(sol_model)
 
     return last_assignement, sol_model
 

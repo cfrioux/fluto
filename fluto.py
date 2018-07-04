@@ -73,15 +73,16 @@ def main():
 
     lpoutput, objective_reactions = utils.make_instance_fluto(sbml_model, seeds_sbml, repairdb)
     # print('Conversion completed in {0:.2f} seconds'.format(time.time() - time_start))
-    
+    # print(lpoutput)
+
     print("Objective reaction(s): " + ",".join(objective_reactions))
 
     lp_assignment, solumodel = asp.aspsolve_hybride(lpoutput, commons.ASP_SRC_FLUTO, exportbool)
-    
+
     unprodtargets = []
     chosen_rxn = []
     exports = []
-    
+
     for elem in solumodel:
         if elem.pred() == 'unreachable':
             unprodtargets.append(elem.arg(0))
@@ -91,27 +92,33 @@ def main():
             exports.append(elem.arg(0))
         else:
             print(elem)
-        
-            
+
+
     if lp_assignment[0] > 1e-5:
         flux = True
     else:
         flux = False
-        
+
     if len(unprodtargets) == 0:
         topo = True
     else:
         topo = False
-        
+
     if not flux:
         print("No flux in objective reaction")
+        print(str(len(chosen_rxn)) + " reactions to be added")
+        print("\n".join(chosen_rxn))
     if not topo:
         print("There are still " + str(len(unprodtargets)) + " topologically unproducible reactants in objective reaction")
-    
+        print(str(len(chosen_rxn)) + " reactions to be added")
+        print("\n".join(chosen_rxn))
+        print("Flux value in objective function(s): " + str(lp_assignment[0]))
+
     if flux and topo:
         print("sucessful gap-filling")
         print(str(len(chosen_rxn)) + " reactions to be added")
         print("\n".join(chosen_rxn))
+        print("Flux value in objective function(s): " + str(lp_assignment[0]))
 
     return
 

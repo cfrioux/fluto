@@ -30,7 +30,6 @@ def make_instance_fluto(model, seedsfile, repair=None):
                                     suffix='.lp',
                                     delete=False) as tmp:
         #print(tmp.name)
-
         try:
             draftnet, seeds, targets, obj_rxn = sbml_fluto.readSBMLnetwork(model, 'd')
         except IOError:
@@ -47,9 +46,8 @@ def make_instance_fluto(model, seedsfile, repair=None):
                 for fact in lpseeds:
                     tmp.write(str(fact) + '.\n')
             print('{0} topological seed(s) was(were) provided and will be added to the draft'.format(len(seeds)))
-
         except:
-            pass
+            print("seeds could not be added to the problem. Check the inputs.")
 
         if repair != None:
             try:
