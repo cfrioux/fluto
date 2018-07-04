@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import clingo
-from . import pyclingoLP
+from __fluto__ import pyclingoLP
 from pyasp.term import *
 
 root = __file__.rsplit('/', 1)[0]

@@ -1,4 +1,4 @@
-#!python
+#!/usr/bin/env python
 # Copyright (c) 2018, Clemence Frioux <clemence.frioux@gmail.com>
 #
 # This file is part of fluto.
@@ -14,13 +14,13 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with meneco.  If not, see <http://www.gnu.org/licenses/>.
+# along with fluto.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
 import time
 import argparse
-from src import utils, asp, commons
+from __fluto__ import utils, asp, commons
 
 ###############################################################################
 #
