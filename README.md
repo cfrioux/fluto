@@ -1,5 +1,9 @@
 # Installation and requirements
 
+Python2.7
+
+So far only level 2 [SBML](http://sbml.org/Documents/Specifications) files are supported
+
 ## requirements / quick start
 
 * Pyasp
