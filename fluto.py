@@ -79,6 +79,11 @@ def main():
 
     lp_assignment, solumodel = asp.aspsolve_hybride(lpoutput, commons.ASP_SRC_FLUTO, exportbool)
 
+    if lp_assignment == None:
+        # print(solumodel)
+        print("No positive flux solution was found")
+        quit()
+
     unprodtargets = []
     chosen_rxn = []
     exports = []

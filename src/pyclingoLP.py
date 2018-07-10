@@ -1061,6 +1061,11 @@ def main(prg):
 
     #print(lp_assignment) #dedicated to clemence: example print tuple or print second argument by "lp_assignment[1]"
     # print(model) #dedicated to clemence: example print ASP model
-    termsetfrommodel = TermSet.from_string(model)
-    return(lp_assignment,termsetfrommodel)
+    try:
+        termsetfrommodel = TermSet.from_string(model)
+        return(lp_assignment,termsetfrommodel)
+    except(NameError):
+        return None, None
+
+
 
