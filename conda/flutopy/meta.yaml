@@ -1,0 +1,31 @@
+package:
+  name: flutopy
+  version: "1.0.0"
+
+source:
+  #git_rev: v1.0.0
+  git_url: https://github.com/cfrioux/fluto
+
+requirements:
+  build:
+    - python 3.6
+    - setuptools
+  run:
+    - python 3.6
+    - pyasp >=1.4.3
+    - clingo
+    - cplex
+
+about:
+  home: https://github.com/cfrioux/fluto
+  license: GPLv3+
+  license_file: LICENSE.txt
+  summary: Hybrid gap-filling tool for metabolic models. Fluto proposes solutions that fit constraint-based (FLUx balance analysis) and graph-based (TOpology) modelings.
+
+test:
+  imports:
+    - clingo
+    - cplex
+    - pyasp
+  commands:
+    - fluto.py -h
