@@ -8,7 +8,7 @@ So far only level 2 [SBML](http://sbml.org/Documents/Specifications) files are s
 
 * Pyasp
 ( `conda install -c bioconda pyasp` or pip install)
-* Cplex for [python](https://www.ibm.com/support/knowledgecenter/SSSA5P_12.5.1/ilog.odms.cplex.help/CPLEX/GettingStarted/topics/set_up/Python_setup.html)
+* Cplex for [python](https://www.ibm.com/support/knowledgecenter/SSSA5P_12.5.1/ilog.odms.cplex.help/CPLEX/GettingStarted/topics/set_up/Python_setup.html) (`conda install -c ibmdecisionoptimization cplex ` provides a promotional version sufficient to solve the toy example)
 * Clingo ( `conda install -c potassco clingo`)
 
 ## install
