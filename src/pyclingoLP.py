@@ -1,4 +1,4 @@
-#!python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 import time
@@ -363,7 +363,7 @@ class Propagator:
             cnums = state.recent_active
         else:
             state.clist = dict(self.__get_constrs(state, [cnum for cnum in state.active_cnum if state.active_cnum[cnum][0] == 0 and state.active_cnum[cnum][1] != 0]))
-            cnums = state.clist.keys()
+            cnums = list(state.clist.keys())
         if state.active_oclit == 0:
             if self.__wopt == {}:
                 obj = self.__set_obj(state)
@@ -878,7 +878,7 @@ class cplx:
         self.__mode = ''
         self.set_mapping(mapping)
         self.__solver_obj = cplex.Cplex()
-        self.__solver_obj.variables.add(names = self.__var_mapping.keys())
+        self.__solver_obj.variables.add(names = list(self.__var_mapping.keys()))
         self.set_doms()
         self.__solver_obj.set_log_stream(None)
         self.__solver_obj.set_error_stream(None)
@@ -924,7 +924,7 @@ class cplx:
         rels = []
         rhs = []
         for constr in clist:
-            items = constr[0].items()
+            items = list(constr[0].items())
             varnames = [x[0] for x in items]
             values = [x[1] for x in items]
             lin_expr.append(cplex.SparsePair(ind = varnames, val = values))
@@ -951,7 +951,7 @@ class cplx:
             if mode != 'min':
                 self.__mode = 'default min'
             self.__solver_obj.objective.set_sense(self.__solver_obj.objective.sense.minimize)
-        self.__solver_obj.objective.set_linear(wopt.items())
+        self.__solver_obj.objective.set_linear(list(wopt.items()))
 
 
     # expects doms = {varname : [(lb,ub)]}
@@ -1001,7 +1001,7 @@ class cplx:
         if self.is_sat():
             sdict = {}
             slist = []
-            res = self.__solver_obj.solution.get_values(self.__var_mapping.keys())
+            res = self.__solver_obj.solution.get_values(list(self.__var_mapping.keys()))
             if isinstance(res, float):
                 slist.append(res)
             else:

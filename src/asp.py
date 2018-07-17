@@ -1,8 +1,8 @@
-#!python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 import clingo
-from __fluto__ import pyclingoLP
+from flutopy import pyclingoLP
 from pyasp.term import *
 
 root = __file__.rsplit('/', 1)[0]

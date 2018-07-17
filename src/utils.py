@@ -1,10 +1,9 @@
-#!python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
-from __future__ import print_function
 import clingo
 import os
 import tempfile
-from __fluto__ import sbml_fluto
+from flutopy import sbml_fluto
 
 def clean_up() :
     if os.path.isfile("parser.out"): os.remove("parser.out")

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # Copyright (c) 2018, Clemence Frioux <clemence.frioux@gmail.com>
 #
 # This file is part of fluto.
@@ -17,10 +17,9 @@
 # along with fluto.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
 import time
 import argparse
-from __fluto__ import utils, asp, commons
+from flutopy import utils, asp, commons
 
 ###############################################################################
 #

@@ -1,6 +1,6 @@
 # Installation and requirements
 
-Python2.7
+Python3.6
 
 So far only level 2 [SBML](http://sbml.org/Documents/Specifications) files are supported
 
