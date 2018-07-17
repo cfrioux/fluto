@@ -29,7 +29,7 @@ A good practice is to perform the Python installations into a [virtualenv](https
 
 **There are some known issues with the pyasp package if installed with python pip. If obtaining such an error when running fluto:**
 
-``OSError: Grounder '/Users/cfrioux/wd/asp/mohycom/venv/lib/python2.7/site-packages/pyasp/bin/gringo4' not found``
+``OSError: Grounder '/.../lib/python/site-packages/pyasp/bin/gringo4' not found``
 
 It means that the binaries were not correctly installed for pyasp.
 These two command lines should be an efficient workaround:
