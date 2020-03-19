@@ -1,0 +1,3 @@
+[submodule "clingoLP"]
+	path = clingoLP
+	url = https://github.com/sthiele/clingoLP
