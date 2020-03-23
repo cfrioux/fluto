@@ -1,23 +1,45 @@
 # fluto
 
+Tested for Python 3.7.6.
+
+So far only level 2 [SBML](http://sbml.org/Documents/Specifications) files are supported.
+
 ## Installation and requirements
 
-Python3.6
+A good practice is to perform the Python installations into a [virtualenv](https://virtualenv.pypa.io/en/stable/installation/) or a [conda environment](https://conda.io/docs/user-guide/tasks/manage-environments.html)
 
-So far only level 2 [SBML](http://sbml.org/Documents/Specifications) files are supported
+Create a conda environment for fluto from the `environment.yml`.
 
-### Pyasp
+- `conda env create -f environment.yml`
 
-* `pip install  pyasp`
+Activate conda environment.
 
-### Cplex for [python](https://www.ibm.com/support/knowledgecenter/SSSA5P_12.5.1/ilog.odms.cplex.help/CPLEX/GettingStarted/topics/set_up/Python_setup.html) (`conda install -c ibmdecisionoptimization cplex ` provides a promotional version sufficient to solve the toy example)
+- `conda activate fluto`
 
-* `clingolp` ( `conda install -c sthiele -c potassco -c conda-forge clingolp`)
+### PyASP
 
-For more information see INSTALL.md.
+- `pip install  pyasp`
+
+### ClingoLP
+
+- `conda install -c sthiele -c potassco -c conda-forge clingolp`
+
+### Cplex
+
+IBM provides a promotional version sufficient to solve the toy example.
+
+- `conda install -c ibmdecisionoptimization cplex`
+
+For the full version follow the [IBM installation procedure](https://www.ibm.com/support/knowledgecenter/SSSA5P_12.5.1/ilog.odms.cplex.help/CPLEX/GettingStarted/topics/set_up/Python_setup.html). e.g.
+
+```sh
+cd /Applications/CPLEX_Studio128/cplex/python/3.6/x86-64_osx/
+python setup.py install
+```
 
 ## Usage
 
+```text
     python fluto.py -h
 
     usage: fluto.py [-h] -m MODEL [-r REPAIRBASE] [-s SEEDS] [-e]
@@ -37,6 +59,7 @@ For more information see INSTALL.md.
                         accumulation
 
     requires Python Clingo, PyASP and Cplex packages. See README and INSTALL
+```
 
 ### Example
 
