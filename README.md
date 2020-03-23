@@ -1,5 +1,7 @@
 # fluto
 
+Metabolic network completion with linear reaction rate constraints based on the stoichiometry.
+
 Tested for Python 3.7.6.
 
 So far only level 2 [SBML](http://sbml.org/Documents/Specifications) files are supported.
@@ -32,33 +34,27 @@ IBM provides a promotional version sufficient to solve the toy example.
 
 For the full version follow the [IBM installation procedure](https://www.ibm.com/support/knowledgecenter/SSSA5P_12.5.1/ilog.odms.cplex.help/CPLEX/GettingStarted/topics/set_up/Python_setup.html). e.g.
 
-```sh
-cd /Applications/CPLEX_Studio128/cplex/python/3.6/x86-64_osx/
-python setup.py install
-```
+- `cd /Applications/CPLEX_Studio128/cplex/python/3.6/x86-64_osx/`
+- `python setup.py install`
 
 ## Usage
 
 ```text
-    python fluto.py -h
-
-    usage: fluto.py [-h] -m MODEL [-r REPAIRBASE] [-s SEEDS] [-e]
-
-    Performs hybrid (topological/flux) gap-filling
-
-    optional arguments:
-    -h, --help            show this help message and exit
-    -m MODEL, --model MODEL
-                        organism metabolic model in SBML format
-    -r REPAIRBASE, --repairbase REPAIRBASE
-                        database of reactions for gap-filling
-    -s SEEDS, --seeds SEEDS
-                        topological seeds to unblock circular dependencies in
-                        the graph. Txt file with one seed ID per line
-    -e, --export          enabling export of compounds to prevent metabolite
-                        accumulation
-
-    requires Python Clingo, PyASP and Cplex packages. See README and INSTALL
+$ python fluto.py -h
+usage: fluto.py [-h] -m MODEL [-r REPAIRBASE] [-s SEEDS] [-e]
+Performs hybrid (topological/flux) gap-filling
+optional arguments:
+-h, --help            show this help message and exit
+-m MODEL, --model MODEL
+                    organism metabolic model in SBML format
+-r REPAIRBASE, --repairbase REPAIRBASE
+                    database of reactions for gap-filling
+-s SEEDS, --seeds SEEDS
+                    topological seeds to unblock circular dependencies in
+                    the graph. Txt file with one seed ID per line
+-e, --export          enabling export of compounds to prevent metabolite
+                    accumulation
+requires Python clingoLP, PyASP and Cplex packages. See README and INSTALL
 ```
 
 ### Example
