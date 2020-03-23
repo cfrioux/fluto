@@ -1,21 +1,22 @@
-# Installation and requirements
+# fluto
+
+## Installation and requirements
 
 Python3.6
 
 So far only level 2 [SBML](http://sbml.org/Documents/Specifications) files are supported
 
-## requirements / quick start
+### Pyasp
 
-* Pyasp
-( `conda install -c bioconda pyasp` or pip install)
-* Cplex for [python](https://www.ibm.com/support/knowledgecenter/SSSA5P_12.5.1/ilog.odms.cplex.help/CPLEX/GettingStarted/topics/set_up/Python_setup.html) (`conda install -c ibmdecisionoptimization cplex ` provides a promotional version sufficient to solve the toy example)
-* Clingo ( `conda install -c potassco clingo`)
+* `pip install  pyasp`
 
-## install
+### Cplex for [python](https://www.ibm.com/support/knowledgecenter/SSSA5P_12.5.1/ilog.odms.cplex.help/CPLEX/GettingStarted/topics/set_up/Python_setup.html) (`conda install -c ibmdecisionoptimization cplex ` provides a promotional version sufficient to solve the toy example)
 
-See INSTALL.md
+* `clingolp` ( `conda install -c sthiele -c potassco -c conda-forge clingolp`)
 
-# Usage
+For more information see INSTALL.md.
+
+## Usage
 
     python fluto.py -h
 
@@ -37,6 +38,6 @@ See INSTALL.md
 
     requires Python Clingo, PyASP and Cplex packages. See README and INSTALL
 
-## toy example
+### Example
 
 `python fluto.py -m data/toy/draft.xml -s data/toy/toposeeds.txt -r data/toy/repairdb.xml`
