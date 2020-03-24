@@ -1,8 +1,8 @@
 # fluto
 
-Metabolic network completion with linear reaction rate constraints based on the stoichiometry.
+Metabolic network completion with respect to topological and linear reaction rate constraints based on the stoichiometry.
 
-Tested for Python 3.7.6.
+Tested with Python 3.7.6.
 
 So far only level 2 [SBML](http://sbml.org/Documents/Specifications) files are supported.
 
@@ -32,7 +32,7 @@ IBM provides a promotional version sufficient to solve the toy example.
 
 - `conda install -c ibmdecisionoptimization cplex`
 
-For the full version follow the [IBM installation procedure](https://www.ibm.com/support/knowledgecenter/SSSA5P_12.5.1/ilog.odms.cplex.help/CPLEX/GettingStarted/topics/set_up/Python_setup.html). e.g.
+For the full version follow the [IBM installation procedure](https://www.ibm.com/support/knowledgecenter/SSSA5P_12.10.0/ilog.odms.cplex.help/CPLEX/GettingStarted/topics/set_up/Python_setup.html). e.g.
 
 - `cd /Applications/CPLEX_Studio128/cplex/python/3.6/x86-64_osx/`
 - `python setup.py install`
@@ -60,3 +60,7 @@ requires Python clingoLP, PyASP and Cplex packages. See README and INSTALL
 ### Example
 
 `python fluto.py -m data/toy/draft.xml -s data/toy/toposeeds.txt -r data/toy/repairdb.xml`
+
+## Publication
+
+- [Hybrid metabolic network completion, Frioux, C., Schaub, T., Schellhorn, S., Siegel, A., Wanko, P. (2019),  TPLP, 19(1), 83–108](https://www.cs.uni-potsdam.de/wv/publications/DBLP_journals/tplp/FriouxSSSW19.pdf)
