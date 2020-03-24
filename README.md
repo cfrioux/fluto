@@ -26,7 +26,7 @@ Activate conda environment.
 
 - `conda install -c sthiele -c potassco -c conda-forge clingolp`
 
-### Cplex
+### CPLEX
 
 IBM provides a promotional version sufficient to solve the toy example.
 
