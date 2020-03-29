@@ -4,7 +4,7 @@
 import clingo
 import clingolp
 from clingolp.lp_theory import Propagator as LpPropagator
-from pyasp.term import *
+from pyasp.term import TermSet
 
 root = __file__.rsplit('/', 1)[0]
 
@@ -34,7 +34,16 @@ class Control:
     def __init__(self):
         self.clingo = clingo.Control(['--warn=none'])
         self.clingo.add("base", [], clingolp.lp_theory.theory)
-        self.prop = LpPropagator(self.clingo)
+        self.prop = LpPropagator(self.clingo, solver="lps",
+                                 show=True,
+                                 accuracy=1,
+                                 epsilon=1*10**-3,
+                                 nstrict=True,
+                                 trace=False,
+                                 core_confl=20,
+                                 prop_heur=0,
+                                 ilp=False,
+                                 debug=0)
         self.clingo.register_propagator(self.prop)
         self.clingo.ground([("base", [])])
         self.model = None
@@ -45,18 +54,16 @@ class Control:
 
     def solve(self):
         self.clingo.ground([("p", [])])
-        self.clingo.solve(on_model = self.copy_assignment)
+        self.clingo.solve(on_model=self.copy_assignment)
 
         try:
             termsetfrommodel = TermSet.from_string(self.model)
-            return(self.lp_assignment,termsetfrommodel)
+            return(self.lp_assignment, termsetfrommodel)
         except NameError as e:
             print('Error parsing solution:', e)
             exit()
 
-
-    def copy_assignment(self,m):
+    def copy_assignment(self, m):
         self.model = m.__repr__()
         # self.prop.print_assignment(m.thread_id)
         self.lp_assignment = self.prop.assignment(m.thread_id)
-

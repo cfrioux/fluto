@@ -20,11 +20,11 @@ Activate conda environment.
 
 ### PyASP
 
-- `pip install  pyasp`
+- `pip install pyasp`
 
 ### ClingoLP
 
-- `conda install -c sthiele -c potassco -c conda-forge clingolp`
+- `conda install -c potassco -c conda-forge clingo-lp`
 
 ### CPLEX
 
