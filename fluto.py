@@ -34,8 +34,8 @@ requires Python Clingo, PyASP and Cplex packages. See README and INSTALL
 
 
 def parsing():
-    parser = argparse.ArgumentParser(description=message, epilog=requires \
-                                    , prog='fluto') #, usage=msg()
+    parser = argparse.ArgumentParser(
+        description=message, epilog=requires, prog='fluto')  # , usage=msg()
     parser.add_argument("-m", "--model",
                         help="organism metabolic model in SBML format",
                         required=True)
@@ -48,6 +48,9 @@ def parsing():
                         Txt file with one seed ID per line', required=False)
     parser.add_argument("-e", "--export",
                         help="enabling export of compounds to prevent metabolite accumulation",
+                        required=False, action="store_true", default=False)
+    parser.add_argument("--cplex",
+                        help="use CPLEX solver",
                         required=False, action="store_true", default=False)
 
     # TODO deal with export options
@@ -70,13 +73,15 @@ def main():
     # get export behaviour
     exportbool = args.export
 
-    lpoutput, objective_reactions = utils.make_instance_fluto(sbml_model, seeds_sbml, repairdb)
+    lpoutput, objective_reactions = utils.make_instance_fluto(
+        sbml_model, seeds_sbml, repairdb)
     # print('Conversion completed in {0:.2f} seconds'.format(time.time() - time_start))
-    # print(lpoutput)
+    print(lpoutput)
 
     print("Objective reaction(s): " + ",".join(objective_reactions))
 
-    lp_assignment, solumodel = asp.aspsolve_hybride(lpoutput, commons.ASP_SRC_FLUTO, exportbool)
+    lp_assignment, solumodel = asp.aspsolve_hybride(
+        lpoutput, commons.ASP_SRC_FLUTO, exportbool, args.cplex)
 
     if lp_assignment == None:
         # print(solumodel)
@@ -97,7 +102,6 @@ def main():
         else:
             print(elem)
 
-
     if lp_assignment[0] > 1e-5:
         flux = True
     else:
@@ -113,7 +117,8 @@ def main():
         print(str(len(chosen_rxn)) + " reactions to be added")
         print("\n".join(chosen_rxn))
     if not topo:
-        print("There are still " + str(len(unprodtargets)) + " topologically unproducible reactants in objective reaction")
+        print("There are still " + str(len(unprodtargets)) +
+              " topologically unproducible reactants in objective reaction")
         print(str(len(chosen_rxn)) + " reactions to be added")
         print("\n".join(chosen_rxn))
         print("Flux value in objective function(s): " + str(lp_assignment[0]))
@@ -125,6 +130,7 @@ def main():
         print("Flux value in objective function(s): " + str(lp_assignment[0]))
 
     return
+
 
 if __name__ == '__main__':
     start_time = time.time()

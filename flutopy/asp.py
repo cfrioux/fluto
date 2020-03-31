@@ -9,7 +9,7 @@ from pyasp.term import TermSet
 root = __file__.rsplit('/', 1)[0]
 
 
-def aspsolve_hybride(instance, encoding, export):
+def aspsolve_hybride(instance, encoding, export, cplex: bool):
 
     if export:
         problem = "#const export=1."
@@ -22,7 +22,7 @@ def aspsolve_hybride(instance, encoding, export):
 
     # print(problem)
 
-    clingoLP = Control()
+    clingoLP = Control(cplex)
     clingoLP.add(problem)
 
     last_assignement, sol_model = clingoLP.solve()
@@ -31,10 +31,15 @@ def aspsolve_hybride(instance, encoding, export):
 
 
 class Control:
-    def __init__(self):
+    def __init__(self, cplex: bool):
         self.clingo = clingo.Control(['--warn=none'])
         self.clingo.add("base", [], clingolp.lp_theory.theory)
-        self.prop = LpPropagator(self.clingo, solver="lps",
+        if cplex:
+            solver = 'cplx'
+        else:
+            solver = 'lps'
+
+        self.prop = LpPropagator(self.clingo, solver,
                                  show=True,
                                  accuracy=1,
                                  epsilon=1*10**-3,
@@ -44,6 +49,7 @@ class Control:
                                  prop_heur=0,
                                  ilp=False,
                                  debug=0)
+
         self.clingo.register_propagator(self.prop)
         self.clingo.ground([("base", [])])
         self.model = None

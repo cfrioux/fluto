@@ -1,10 +1,7 @@
-%#include "lp-prop.lp".
-
 % option data defaults
 #const unreachable=1.
 #const reachability=1.
 #const fluxbalance=1.
-%#const export=0.
 #const edge_priority=2.
 #const exp_priority=3.
 #const topo_seeds=1.
