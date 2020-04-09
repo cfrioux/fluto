@@ -19,7 +19,13 @@
 
 import time
 import argparse
+import logging
 from flutopy import utils, asp, commons
+
+logging.basicConfig(format='%(message)s', level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 ###############################################################################
 #
@@ -53,6 +59,10 @@ def parsing():
                         help="use CPLEX solver",
                         required=False, action="store_true", default=False)
 
+    parser.add_argument("--json",
+                        help="produce json output",
+                        required=False, action="store_true", default=False)
+
     # TODO deal with export options
     args = parser.parse_args()
 
@@ -60,8 +70,6 @@ def parsing():
 
 
 def main():
-
-    # time_start = time.time()
 
     args = parsing()
     # get models from inputs
@@ -75,61 +83,61 @@ def main():
 
     lpoutput, objective_reactions = utils.make_instance_fluto(
         sbml_model, seeds_sbml, repairdb)
-    # print('Conversion completed in {0:.2f} seconds'.format(time.time() - time_start))
-    print(lpoutput)
 
-    print("Objective reaction(s): " + ",".join(objective_reactions))
+    logger.info("Objective reaction(s): " + ",".join(objective_reactions))
 
-    lp_assignment, solumodel = asp.aspsolve_hybride(
-        lpoutput, commons.ASP_SRC_FLUTO, exportbool, args.cplex)
+    if repairdb != None:
+        lp_assignment, solumodel = asp.aspsolve_hybride(
+            lpoutput, commons.ASP_SRC_FLUTO, exportbool, args.cplex)
 
-    if lp_assignment == None:
-        # print(solumodel)
-        print("No positive flux solution was found")
-        quit()
+        if lp_assignment == None:
+            logger.info("No positive flux solution was found")
+            quit()
 
-    unprodtargets = []
-    chosen_rxn = []
-    exports = []
+        unprodtargets = []
+        chosen_rxn = []
+        exports = []
 
-    for elem in solumodel:
-        if elem.pred() == 'unreachable':
-            unprodtargets.append(elem.arg(0))
-        elif elem.pred() == 'completion':
-            chosen_rxn.append(elem.arg(0))
-        elif elem.pred() == 'exp':
-            exports.append(elem.arg(0))
+        for elem in solumodel:
+            if elem.pred() == 'unreachable':
+                unprodtargets.append(elem.arg(0))
+            elif elem.pred() == 'completion':
+                chosen_rxn.append(elem.arg(0))
+            elif elem.pred() == 'exp':
+                exports.append(elem.arg(0))
+            else:
+                print(elem)
+
+        if lp_assignment[0] > 1e-5:
+            flux = True
         else:
-            print(elem)
+            flux = False
 
-    if lp_assignment[0] > 1e-5:
-        flux = True
-    else:
-        flux = False
+        if len(unprodtargets) == 0:
+            topo = True
+        else:
+            topo = False
 
-    if len(unprodtargets) == 0:
-        topo = True
-    else:
-        topo = False
+        if not flux:
+            logger.info("No flux in objective reaction")
+            logger.info(str(len(chosen_rxn)) + " reactions to be added")
+            logger.info("\n".join(chosen_rxn))
+        if not topo:
+            logger.info("There are still " + str(len(unprodtargets)) +
+                        " topologically unproducible reactants in objective reaction")
+            logger.info(str(len(chosen_rxn)) + " reactions to be added")
+            logger.info("\n".join(chosen_rxn))
+            logger.info("Flux value in objective function(s): " +
+                        str(lp_assignment[0]))
 
-    if not flux:
-        print("No flux in objective reaction")
-        print(str(len(chosen_rxn)) + " reactions to be added")
-        print("\n".join(chosen_rxn))
-    if not topo:
-        print("There are still " + str(len(unprodtargets)) +
-              " topologically unproducible reactants in objective reaction")
-        print(str(len(chosen_rxn)) + " reactions to be added")
-        print("\n".join(chosen_rxn))
-        print("Flux value in objective function(s): " + str(lp_assignment[0]))
+        if flux and topo:
+            logger.info("sucessful gap-filling")
+            logger.info(str(len(chosen_rxn)) + " reactions to be added")
+            logger.info("\n".join(chosen_rxn))
+            logger.info("Flux value in objective function(s): " +
+                        str(lp_assignment[0]))
 
-    if flux and topo:
-        print("sucessful gap-filling")
-        print(str(len(chosen_rxn)) + " reactions to be added")
-        print("\n".join(chosen_rxn))
-        print("Flux value in objective function(s): " + str(lp_assignment[0]))
-
-    return
+    pass
 
 
 if __name__ == '__main__':
