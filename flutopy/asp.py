@@ -66,6 +66,7 @@ class Control:
             termsetfrommodel = TermSet.from_string(self.model)
         except Exception as e:
             logger.error('Error parsing solution: {0}'.format(e))
+            logger.error('Solution: {0}'.format(self.model))
             quit()
 
         return(self.lp_assignment, termsetfrommodel)

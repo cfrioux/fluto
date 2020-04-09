@@ -108,10 +108,16 @@ def main():
             else:
                 print(elem)
 
-        if lp_assignment[0] > 1e-5:
-            flux = True
-        else:
-            flux = False
+        try:
+            if lp_assignment[0] > 1e-5:
+                flux = True
+            else:
+                flux = False
+        except Exception as e:
+            logger.error(
+                'Unexpected solver value: {0}'.format(lp_assignment[0]))
+            logger.error(e)
+            quit()
 
         if len(unprodtargets) == 0:
             topo = True
