@@ -144,4 +144,3 @@ if __name__ == '__main__':
     start_time = time.time()
     main()
     utils.clean_up()
-    print("--- %s seconds ---" % round(((time.time()) - start_time), 2))

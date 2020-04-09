@@ -5,6 +5,9 @@ import clingo
 import clingolp
 from clingolp.lp_theory import Propagator as LpPropagator
 from pyasp.term import TermSet
+import logging
+logger = logging.getLogger(__name__)
+
 
 root = __file__.rsplit('/', 1)[0]
 
@@ -19,8 +22,6 @@ def aspsolve_hybride(instance, encoding, export, cplex: bool):
         problem += f.read()
     with open(instance, 'r') as f:
         problem += f.read()
-
-    # print(problem)
 
     clingoLP = Control(cplex)
     clingoLP.add(problem)
@@ -61,15 +62,14 @@ class Control:
     def solve(self):
         self.clingo.ground([("p", [])])
         self.clingo.solve(on_model=self.copy_assignment)
-
         try:
             termsetfrommodel = TermSet.from_string(self.model)
-            return(self.lp_assignment, termsetfrommodel)
-        except NameError as e:
-            print('Error parsing solution:', e)
-            exit()
+        except Exception as e:
+            logger.error('Error parsing solution: {0}'.format(e))
+            quit()
+
+        return(self.lp_assignment, termsetfrommodel)
 
     def copy_assignment(self, m):
         self.model = m.__repr__()
-        # self.prop.print_assignment(m.thread_id)
         self.lp_assignment = self.prop.assignment(m.thread_id)

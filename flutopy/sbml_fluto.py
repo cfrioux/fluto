@@ -13,7 +13,7 @@ def get_model(sbml):
     model_element = None
     for e in sbml:
         if e.tag[0] == "{":
-            uri, tag = e.tag[1:].split("}")
+            _uri, tag = e.tag[1:].split("}")
         else:
             tag = e.tag
         if tag == "model":
@@ -27,7 +27,7 @@ def get_listOfSpecies(model):
     listOfSpecies = None
     for e in model:
         if e.tag[0] == "{":
-            uri, tag = e.tag[1:].split("}")
+            _uri, tag = e.tag[1:].split("}")
         else:
             tag = e.tag
         if tag == "listOfSpecies":
@@ -41,7 +41,7 @@ def get_listOfReactions(model):
     listOfReactions = None
     for e in model:
         if e.tag[0] == "{":
-            uri, tag = e.tag[1:].split("}")
+            _uri, tag = e.tag[1:].split("}")
         else:
             tag = e.tag
         if tag == "listOfReactions":
@@ -55,7 +55,7 @@ def get_listOfReactants(reaction):
     listOfReactants = None
     for e in reaction:
         if e.tag[0] == "{":
-            uri, tag = e.tag[1:].split("}")
+            _uri, tag = e.tag[1:].split("}")
         else:
             tag = e.tag
         if tag == "listOfReactants":
@@ -69,7 +69,7 @@ def get_listOfProducts(reaction):
     listOfProducts = None
     for e in reaction:
         if e.tag[0] == "{":
-            uri, tag = e.tag[1:].split("}")
+            _uri, tag = e.tag[1:].split("}")
         else:
             tag = e.tag
         if tag == "listOfProducts":
@@ -83,14 +83,14 @@ def get_listOfParameters(reaction):
     listOfParameters = None
     for e in reaction:
         if e.tag[0] == "{":
-            uri, tag = e.tag[1:].split("}")
+            _uri, tag = e.tag[1:].split("}")
         else:
             tag = e.tag
         if tag == "kineticLaw":
             kineticLaw = e
             for ee in kineticLaw:
                 if ee.tag[0] == "{":
-                    uri, tag = ee.tag[1:].split("}")
+                    _uri, tag = ee.tag[1:].split("}")
                 else:
                     tag = ee.tag
                 if tag == "listOfParameters":
@@ -118,7 +118,7 @@ def readSBMLnetwork(filename, prefix):
     # get list of species
     for e in listOfSpecies:
         if e.tag[0] == "{":
-            uri, tag = e.tag[1:].split("}")
+            _uri, tag = e.tag[1:].split("}")
         else:
             tag = e.tag
         if tag == "species":
@@ -159,7 +159,7 @@ def readSBMLnetwork(filename, prefix):
         default_oc = 0
 
         if e.tag[0] == "{":
-            uri, tag = e.tag[1:].split("}")
+            _uri, tag = e.tag[1:].split("}")
         else:
             tag = e.tag
         if tag == "reaction":
@@ -167,23 +167,24 @@ def readSBMLnetwork(filename, prefix):
 
             # obtain list of parameters for linear programming part
             listOfParameters = get_listOfParameters(e)
-            if listOfParameters == None and prefix == 'r':
-                if e.attrib.get("reversible") == "false":
-                    lb = 0
+            if listOfParameters == None:
+                if prefix == 'r':
+                    if e.attrib.get("reversible") == "false":
+                        lb = 0
+                    else:
+                        lb = default_lb
+                    ub = default_ub
+                    oc = default_oc
+                    logger.warning(
+                        'Set default parameters for repairDB reaction {0}'.format(reactionId))
                 else:
-                    lb = default_lb
-                ub = default_ub
-                oc = default_oc
-                logger.warning(
-                    'set default parameters for repairDB reaction {0}'.format(reactionId))
-            elif listOfParameters == None:
-                logger.error(
-                    "Error in draft reaction: {reactionId} listOfParameters = None")
-                quit()
+                    logger.error(
+                        "Error in draft reaction {0}: listOfParameters = None".format(reactionId))
+                    quit()
             else:
                 for ee in listOfParameters:
                     if ee.tag[0] == "{":
-                        uri, tag = ee.tag[1:].split("}")
+                        _uri, tag = ee.tag[1:].split("}")
                     else:
                         tag = ee.tag
                     if tag == "parameter":
@@ -191,11 +192,11 @@ def readSBMLnetwork(filename, prefix):
                         paramValue = ee.attrib.get("value")
 
                         if paramId == "LOWER_BOUND":
-                            lb = int(paramValue)
+                            lb = float(paramValue)
                         elif paramId == "UPPER_BOUND":
-                            ub = int(paramValue)
+                            ub = float(paramValue)
                         elif paramId == "OBJECTIVE_COEFFICIENT":
-                            oc = int(paramValue)
+                            oc = float(paramValue)
                             if oc == 1:
                                 objective_reactions.append(reactionId)
                                 obj_fnct = True
@@ -204,21 +205,21 @@ def readSBMLnetwork(filename, prefix):
             # set it to default value + tell user
             if lb == None:
                 lb = default_lb
-                logger.warning("No lower bound defined for reaction {reactionID}. Set lower bound to default value" +
-                               str(default_lb))
+                logger.warning("No lower bound defined for reaction {0}. Set lower bound to default value {1}.".format(
+                    reactionId, default_lb))
 
             if ub == None:
                 ub = default_ub
-                logger.warning("No upper bound defined for reaction {reactionID}. Set upper bound to default value " +
-                               str(default_ub))
+                logger.warning("No upper bound defined for reaction {0}. Set upper bound to default value {1}.".format(
+                    reactionId, default_ub))
 
             if (lb < 0 and ub > 0) or (lb > 0 and ub < 0):
                 lpfacts.append(clingo.Function('reversible', [reactionId]))
 
             if oc == None:
                 oc = default_oc
-                logger.warn("No objective coefficient defined for reaction {reactionId}. Set objective coefficient to default value " +
-                            str(default_oc))
+                logger.warn("No objective coefficient defined for reaction {0}. Set objective coefficient to default value {1}.".format(
+                    reactionId, default_oc))
 
             # make facts for an objective reaction
             if obj_fnct and prefix == 'd':
@@ -243,12 +244,13 @@ def readSBMLnetwork(filename, prefix):
 
             # warn user if no reactants
             if listOfReactants == None:
-                logger.warning("Warning: {reactionId} listOfReactants=None")
+                logger.warning(
+                    "Warning: {0} listOfReactants=None".format(reactionId))
 
                 # exit with error if no reactant for an objective function
                 if obj_fnct == True:
                     logger.error(
-                        "error: {reactionId} is used in the objective function and has no reactants")
+                        "error: {0} is used in the objective function and has no reactants".format(reactionId))
                     quit()
 
             # else make facts for each reactant
@@ -266,7 +268,7 @@ def readSBMLnetwork(filename, prefix):
                                 'metabolite', [reactantId, clingo.Function('t')]))
                         except KeyError:
                             logger.error(
-                                'Error: reactant {reactantId} of the objective reaction {reactionId} is not defined in list of species')
+                                'Error: reactant {0} of the objective reaction {1} is not defined in list of species'.format(reactantId, reactionId))
                             quit()
                         # add it in added species if it was not already in there
                         if not reactantId in added_species:
@@ -285,7 +287,8 @@ def readSBMLnetwork(filename, prefix):
             listOfProducts = get_listOfProducts(e)
             # warn user if no products
             if listOfProducts == None:
-                logger.warning("Warning: {reactionId} listOfProducts=None")
+                logger.warning(
+                    "Warning: {0} listOfProducts=None".format(reactionId))
             else:
                 for p in listOfProducts:
                     productId = p.attrib.get("species")
