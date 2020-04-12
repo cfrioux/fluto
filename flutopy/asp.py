@@ -61,15 +61,18 @@ class Control:
 
     def solve(self):
         self.clingo.ground([("p", [])])
-        self.clingo.solve(on_model=self.copy_assignment)
-        try:
-            termsetfrommodel = TermSet.from_string(self.model)
-        except Exception as e:
-            logger.error('Error parsing solution: {0}'.format(e))
-            logger.error('Solution: {0}'.format(self.model))
-            quit()
+        solve_result = self.clingo.solve(on_model=self.copy_assignment)
+        if solve_result.satisfiable:
+            try:
+                termsetfrommodel = TermSet.from_string(self.model)
+            except Exception as e:
+                logger.error('Error parsing solution: {0}'.format(e))
+                logger.error('Solution: {0}'.format(self.model))
+                quit()
 
-        return(self.lp_assignment, termsetfrommodel)
+            return (self.lp_assignment, termsetfrommodel)
+        else:
+            return (None, None)
 
     def copy_assignment(self, m):
         self.model = m.__repr__()
