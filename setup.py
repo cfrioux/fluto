@@ -29,7 +29,7 @@ More information on usage and troubleshooting on Github: https://github.com/cfri
     author           = 'Clemence Frioux',
     author_email     = 'clemence.frioux@gmail.com',
     packages         = ['flutopy'],
-    package_dir      = {'flutopy' : 'src'},
+    package_dir      = {'flutopy' : 'flutopy'},
     package_data     = {'flutopy' : ['encodings/*.lp']},
     scripts          = ['fluto.py'],
 )
