@@ -33,7 +33,7 @@ message = """
 Performs hybrid (topological/flux) gap-filling"""
 
 requires = """
-requires Python Clingo, PyASP and Cplex packages. See README and INSTALL
+requires Python Clingo, PyASP and CPLEX packages. See README and INSTALL
 """
 #
 ###############################################################################
@@ -60,7 +60,7 @@ def parsing():
                         required=False, action="store_true", default=False)
 
     parser.add_argument("--json",
-                        help="produce json output",
+                        help="produce JSON output",
                         required=False, action="store_true", default=False)
 
     # TODO deal with export options
@@ -147,6 +147,6 @@ def main():
 
 
 if __name__ == '__main__':
-    start_time = time.time()
+    # start_time = time.time()
     main()
     utils.clean_up()
