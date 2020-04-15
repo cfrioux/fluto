@@ -49,12 +49,23 @@ def parsing():
                         help="database of reactions for gap-filling",
                         required=False)
     parser.add_argument('-s', '--seeds',
-                        help='topological seeds to unblock \
-                        circular dependencies in the graph. \
-                        Txt file with one seed ID per line', required=False)
-    parser.add_argument("-e", "--export",
-                        help="enabling export of compounds to prevent metabolite accumulation",
+                        help='use topological seeds that are not defined via reactions in the model. \
+                        Txt file with one seed ID per line ', required=False)
+
+    parser.add_argument('--handorf',
+                        help='use scope notion of Handorf & Ebenhöh \
+                        for the topological produciblity criterium.\
+                        Default is the notion of Sagot & Acuna.', required=False, action="store_true", default=False)
+
+    parser.add_argument("--no-accumulation",
+                        help="allow the accumulation of metabolites.\
+                            Per default the accumulation of metabolites is allowed.",
                         required=False, action="store_true", default=False)
+
+    parser.add_argument("--no-fba",
+                        help="turn off flux balance constraints.",
+                        required=False, action="store_true", default=False)
+
     parser.add_argument("--cplex",
                         help="use CPLEX solver",
                         required=False, action="store_true", default=False)
@@ -63,7 +74,6 @@ def parsing():
                         help="produce JSON output",
                         required=False, action="store_true", default=False)
 
-    # TODO deal with export options
     args = parser.parse_args()
 
     return args
@@ -72,25 +82,17 @@ def parsing():
 def main():
 
     args = parsing()
-    # get models from inputs
-    sbml_model = args.model
-    # get repairbase from inputs
-    repairdb = args.repairbase
-    # get seeds if given
-    seeds_sbml = args.seeds
-    # get export behaviour
-    exportbool = args.export
 
     lpoutput, objective_reactions = utils.make_instance_fluto(
-        sbml_model, seeds_sbml, repairdb)
+        args.model, args.seeds, args.repairbase)
 
     logger.info("Objective reaction(s): " + ",".join(objective_reactions))
 
-    if repairdb != None:
+    if args.repairbase != None:
         lp_assignment, solumodel = asp.aspsolve_hybride(
-            lpoutput, commons.ASP_SRC_FLUTO, exportbool, args.cplex)
+            lpoutput, commons.ASP_SRC_FLUTO, args.handorf, args.no_accumulation, args.no_fba, args.cplex)
 
-        if lp_assignment == None:
+        if lp_assignment == None and not args.no_fba:
             logger.info("No positive flux solution was found")
             quit()
 
@@ -108,40 +110,31 @@ def main():
             else:
                 print(elem)
 
-        try:
-            if lp_assignment[0] > 1e-5:
-                flux = True
-            else:
-                flux = False
-        except Exception as e:
-            logger.error(
-                'Unexpected solver value: {0}'.format(lp_assignment[0]))
-            logger.error(e)
-            quit()
+        flux = False
+        if not args.no_fba:
+            try:
+                if lp_assignment[0] > 1e-5:
+                    flux = True
+            except Exception as e:
+                logger.error(
+                    'Unexpected solver value: {0}'.format(lp_assignment[0]))
+                logger.error(e)
+                quit()
 
-        if len(unprodtargets) == 0:
-            topo = True
+        if len(unprodtargets) > 0:
+            logger.info("There are still {0} topologically unproducible targets".format(
+                len(unprodtargets)))
         else:
-            topo = False
-
-        if not flux:
-            logger.info("No flux in objective reaction")
-            logger.info(str(len(chosen_rxn)) + " reactions to be added")
-            logger.info("\n".join(chosen_rxn))
-        if not topo:
-            logger.info("There are still " + str(len(unprodtargets)) +
-                        " topologically unproducible reactants in objective reaction")
-            logger.info(str(len(chosen_rxn)) + " reactions to be added")
-            logger.info("\n".join(chosen_rxn))
-            logger.info("Flux value in objective function(s): " +
-                        str(lp_assignment[0]))
-
-        if flux and topo:
             logger.info("sucessful gap-filling")
-            logger.info(str(len(chosen_rxn)) + " reactions to be added")
-            logger.info("\n".join(chosen_rxn))
-            logger.info("Flux value in objective function(s): " +
-                        str(lp_assignment[0]))
+
+        logger.info("{0} reactions to be added".format(len(chosen_rxn)))
+        logger.info("\n".join(chosen_rxn))
+
+        if flux:
+            logger.info(
+                "Flux value in objective function(s): {0}".format(lp_assignment[0]))
+        elif not args.no_fba:
+            logger.info("No flux in objective reaction")
 
     pass
 

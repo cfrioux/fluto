@@ -12,12 +12,21 @@ logger = logging.getLogger(__name__)
 root = __file__.rsplit('/', 1)[0]
 
 
-def aspsolve_hybride(instance, encoding, export, cplex: bool):
+def aspsolve_hybride(instance, encoding, handorf: bool, no_accu: bool, no_fba: bool, cplex: bool):
 
-    if export:
-        problem = "#const export=1."
+    if handorf:
+        problem = "handorf."
     else:
-        problem = "#const export=0."
+        problem = "sagot."
+
+    if not no_fba:
+        problem += "fluxbalance."
+
+        if no_accu:
+            problem += "no_accumulation."
+        else:
+            problem += "allow_accumulation."
+
     with open(encoding, 'r') as f:
         problem += f.read()
     with open(instance, 'r') as f:

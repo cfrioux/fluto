@@ -1,10 +1,8 @@
 % option data defaults
 #const unreachable=1.
-#const reachability=1.
-#const fluxbalance=1.
-#const edge_priority=2.
-#const exp_priority=3.
-#const boundary=1.
+% sagot.
+% fluxbalance.
+% allow_accumulation.
 
 %%%%%%%%%% GENERAL ENCODING %%%%%%%%%%%
 
@@ -20,73 +18,113 @@ rct'(M,W,R,r) :- rct(M,W,R,r), not rct(M,W,R,d), not rct(M,W,R,t).
 prd'(M,W,R,T) :- prd(M,W,R,T), T!=r.
 prd'(M,W,R,r) :- prd(M,W,R,r), not prd(M,W,R,d), not prd(M,W,R,t).
 
-% detect boundary seeds by itself
-metabolite'(M,s) :- prd'(M,_,R,T), T!=r, #count{N:rct(N,W,R,T)}=0, boundary=1.
-metabolite'(M,s) :- rct'(M,_,R,T), T!=r, #count{N:prd(N,W,R,T)}=0, reversible(R), boundary=1.
+% detect boundary seeds defined via reactions in the model
+metabolite'(M,s) :- prd'(M,_,R,T), T!=r, #count{N:rct(N,W,R,T)}=0.
+metabolite'(M,s) :- rct'(M,_,R,T), T!=r, #count{N:prd(N,W,R,T)}=0, reversible(R).
 
 % draft scope
-scope(M,d) :- seed(M).
-scope(M,d) :- metabolite'(M,s).
-scope(M,d) :- scope(N,d):rct'(N,_,R,T'), T'!=r; reaction'(R,T), prd'(M,_,R,T), T!=r.
-scope(M,d) :- scope(N,d):prd'(N,_,R,T'), T'!=r; reaction'(R,T), reversible(R), rct'(M,_,R,T), T!=r.
-% extended (all) scope
-scope(M,x) :- scope(M,d).
-scope(M,x) :- scope(N,x):rct'(N,_,R,_); reaction'(R,T), prd'(M,_,R,_).
-scope(M,x) :- scope(N,x):prd'(N,_,R,_); reaction'(R,T), reversible(R), rct'(M,_,R,_).
+dscope(M) :- seed(M).
+dscope(M) :- metabolite'(M,s).
+dscope(M) :- dscope(N):rct'(N,_,R,T'), T'!=r; reaction'(R,T), prd'(M,_,R,T), T!=r.
+dscope(M) :- dscope(N):prd'(N,_,R,T'), T'!=r; reaction'(R,T), reversible(R), rct'(M,_,R,T), T!=r.
+
+% potential scope (with all reactions)
+pscope(M) :- dscope(M).
+pscope(M) :- pscope(N):rct'(N,_,R,_); reaction'(R,T), prd'(M,_,R,_).
+pscope(M) :- pscope(N):prd'(N,_,R,_); reaction'(R,T), reversible(R), rct'(M,_,R,_).
+
+
+%%%%%%%%%% REACHABILITY ENCODINGS %%%%%%%%%%%
+
+:- sagot, handorf.
+%%%% à la Sagot & Acuña %%%%%%%%%%%
 
 % choose completion
-{ completion(R) : reaction'(R,r), not reaction'(R,d), prd'(M,_,R,r), scope(M,x) }.
+{ completion(R) : reaction'(R,r), not reaction'(R,d) } :- sagot.
 
-%%%%%%%%%% REACHABILITY ENCODING %%%%%%%%%%%
+reach(X) :- dscope(X), sagot.
+reach(X) :- prd'(X,_,R,T), rct'(Y,_,R,T), reach(Y), sagot.
+reach(X) :- rct'(X,_,R,T), prd'(Y,_,R,T), reach(Y), bounds(R,L,U), L<0, sagot.
+
+% each metabolite might be present
+present(M) :- dscope(M), sagot.
+{ present(M) } :- metabolite'(M,T), reach(M), not dscope(M), sagot.
+
+% a reaction is feasible if all reactants are present
+feasible(R) :- present(M) : rct'(M,_,R,T); reaction'(R,T), T!=r, sagot.
+feasible(R) :- present(M) : prd'(M,_,R,T); reaction'(R,T), T!=r, bounds(R,L,U), L<0, sagot.
+feasible(R) :- present(M) : rct'(M,_,R,T); reaction'(R,T), completion(R), sagot.
+feasible(R) :- present(M) : prd'(M,_,R,T); reaction'(R,T), completion(R), bounds(R,L,U), L<0, sagot.
+
+producible(M) :- feasible(R), prd'(M,_,R,T), sagot.
+producible(M) :- feasible(R), rct'(M,_,R,T), bounds(R,L,U), L<0, sagot.
+
+% every present metabolite must be producible
+:- present(M), not producible(M), not seed(M), sagot.
+
+% every target must be present
+:- metabolite'(M,t), not present(M), unreachable=0, sagot.
+unreachable(M) :- metabolite'(M,t), not present(M), sagot.
+#minimize{ 1@4,M:unreachable(M), metabolite'(M,t),unreachable=1, sagot }.
+
+%%%% à la Handorf & Ebenhöh 
+
+% choose completion
+{ completion(R) : reaction'(R,r), not reaction'(R,d), prd'(M,_,R,r), pscope(M) } :- handorf.
+{ completion(R) : reaction'(R,r), reversible(R), not reaction'(R,d), rct'(M,_,R,r), pscope(M) } :- handorf.
 
 % draft and choosen repair scope
-scope(M,c) :- scope(M,d).
-scope(M,c) :- scope(N,c):rct'(N,_,R,T'), T'!=r; reaction'(R,T), prd'(M,_,R,T), T!=r.
-scope(M,c) :- scope(N,c):prd'(N,_,R,T'), T'!=r; reaction'(R,T), reversible(R),rct'(M,_,R,T), T!=r.
-scope(M,c) :- scope(N,c):rct'(N,_,R,r); completion(R), prd'(M,_,R,r).
-scope(M,c) :- scope(N,c):prd'(N,_,R,r); completion(R), reversible(R),rct'(M,_,R,r).
+xscope(M) :- dscope(M), handorf.
+xscope(M) :- xscope(N):rct'(N,_,R,T'), T'!=r; reaction'(R,T), prd'(M,_,R,T), T!=r, handorf.
+xscope(M) :- xscope(N):prd'(N,_,R,T'), T'!=r; reaction'(R,T), reversible(R),rct'(M,_,R,T), T!=r, handorf.
+xscope(M) :- xscope(N):rct'(N,_,R,r); completion(R), prd'(M,_,R,r), handorf.
+xscope(M) :- xscope(N):prd'(N,_,R,r); completion(R), reversible(R),rct'(M,_,R,r), handorf.
 
 % each target of scope need to be reached
-:- metabolite'(M,t), not scope(M,c), reachability=1, unreachable=0.
-:- metabolite'(M,t), scope(M,x), not scope(M,c), reachability=1, unreachable=1.
-unreachable(M) :- metabolite'(M,t), not scope(M,x), unreachable=1, reachability=1.
-#show unreachable/1.
+:- metabolite'(M,t), not xscope(M), unreachable=0, handorf.
+:- metabolite'(M,t), pscope(M), not xscope(M), unreachable=1, handorf.
+unreachable(M) :- metabolite'(M,t), not pscope(M), unreachable=1, handorf.
 
 %%%%%%%%%% FLUX BALANCED ENCODING %%%%%%%%%%%
 
 % domain definition; default dom{(x,0,inf)}
-&dom{L..U} = R :- bounds(R,L,U), fluxbalance=1.
+&dom{L..U} = R :- bounds(R,L,U), fluxbalance.
 
-% equalities for all metabolites
-% export=0: consider no exports
+% equalities for all metabolites either with accumulation allowed or not
+:- no_accumulation, allow_accumulation.
+
+% no accumulation of metabolites allowed
 &sum{  IS*IR   : prd'(M,IS,IR,T), T!=r;
      -OS*OR   : rct'(M,OS,OR,T), T!=r;
       IS'*IR' : prd'(M,IS',IR',r), completion(IR');
      -OS'*OR' : rct'(M,OS',OR',r), completion(OR')
-   } = 0 :- metabolite'(M,_), not metabolite'(M,s), fluxbalance=1, export=0.
-% export=1: exports via conditionals
+   } = 0 :- metabolite'(M,_), not metabolite'(M,s), fluxbalance, no_accumulation.
+
+% accumulation of metabolites allowed
+
+% derive accumulating metabolites
+acc(M) :- &sum{M} > 0, metabolite'(M,T), fluxbalance, allow_accumulation.
+
 &sum{  IS*IR   : prd'(M,IS,IR,T), T!=r;
      -OS*OR   : rct'(M,OS,OR,T), T!=r;
       IS'*IR' : prd'(M,IS',IR',r), completion(IR');
      -OS'*OR' : rct'(M,OS',OR',r), completion(OR');
-     -1*M   : exp(M)
-   } = 0 :- metabolite'(M,_), not metabolite'(M,s), fluxbalance=1, export=1.
+     -1*M   : acc(M)
+   } = 0 :- metabolite'(M,_), not metabolite'(M,s), fluxbalance, allow_accumulation.
 
-% derive exports
-exp(M) :- &sum{M} > 0, metabolite'(M,T), fluxbalance=1, export=1.
-#show exp/1.
 
-% goal condition: target > 0
-&sum{ R } > 0 :- reaction'(R,t), fluxbalance=1.
+% goal condition: target flux > 0
+&sum{ R } > 0 :- reaction'(R,t), fluxbalance.
 
-% export=1: minimizing exports via ASP  priorize less exports (less than gaps)
-#minimize{ 1@exp_priority,M:exp(M),fluxbalance=1 }.
+% minimizing accumulating metabolites priorize less accumulation (less than gaps)
+#minimize{ 1@3,M:acc(M),fluxbalance, allow_accumulation }.
 
 % maximizing biomass maximize{W*ID : objective(ID,W)}
-&maximize{ R : objective(R,t) } :- fluxbalance=1.
+% &maximize{ R : objective(R,t) } :- fluxbalance.
 
-% minimize number of gaps
-#minimize{ 1@edge_priority,R:completion(R) }.
+% minimize size of completion
+#minimize{ 1@2,R:completion(R) }.
 
 #show completion/1.
-%#show metabolite'/2.
+#show unreachable/1.
+#show acc/1.
