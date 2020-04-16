@@ -83,59 +83,108 @@ def main():
 
     args = parsing()
 
+    result = {}
     lpoutput, objective_reactions = utils.make_instance_fluto(
         args.model, args.seeds, args.repairbase)
 
-    logger.info("Objective reaction(s): " + ",".join(objective_reactions))
+    result['Model file'] = args.model
+    if not args.json:
+        print("Model file: {0}".format(args.model))
+
+    result['Seeds'] = args.seeds
+    if not args.json:
+        print("Seeds file: {0}".format(args.seeds))
+
+    result['Objective reactions'] = objective_reactions
+    if not args.json:
+        print("Objective reaction(s): " + ",".join(objective_reactions))
 
     if args.repairbase != None:
+
+        result['Repair DB'] = args.repairbase
+        if not args.json:
+            print("Repair DB: {0}".format(args.repairbase))
+
         lp_assignment, solumodel = asp.aspsolve_hybride(
             lpoutput, commons.ASP_SRC_FLUTO, args.handorf, args.no_accumulation, args.no_fba, args.cplex)
 
-        if lp_assignment == None and not args.no_fba:
+        if not args.no_fba and lp_assignment == None:
             logger.info("No positive flux solution was found")
+            result['Result'] = 'NO POSITIVE FLUX SOLUTION'
+            print(result)
             quit()
 
+        prodtargets = []
         unprodtargets = []
         chosen_rxn = []
         exports = []
 
         for elem in solumodel:
-            if elem.pred() == 'unreachable':
-                unprodtargets.append(elem.arg(0))
+            if elem.pred() == 'producible_target':
+                prodtargets.append(elem.arg(0)[1:-1])
+            elif elem.pred() == 'unreachable':
+                unprodtargets.append(elem.arg(0)[1:-1])
             elif elem.pred() == 'completion':
-                chosen_rxn.append(elem.arg(0))
-            elif elem.pred() == 'exp':
-                exports.append(elem.arg(0))
+                chosen_rxn.append(elem.arg(0)[1:-1])
+            elif elem.pred() == 'acc':
+                exports.append(elem.arg(0)[1:-1])
             else:
                 print(elem)
 
-        flux = False
         if not args.no_fba:
             try:
-                if lp_assignment[0] > 1e-5:
-                    flux = True
+                result['Flux'] = lp_assignment[0]
             except Exception as e:
                 logger.error(
                     'Unexpected solver value: {0}'.format(lp_assignment[0]))
                 logger.error(e)
                 quit()
 
-        if len(unprodtargets) > 0:
-            logger.info("There are still {0} topologically unproducible targets".format(
-                len(unprodtargets)))
+            if lp_assignment[0] > 1e-5:
+                logger.info(
+                    "Flux value in objective function(s): {0}".format(lp_assignment[0]))
+            else:
+                print('No flux in objective reaction: {0}'.format(
+                    lp_assignment[0]))
+
+        result['Producible targets'] = prodtargets
+        if len(prodtargets) > 0:
+            if not args.json:
+                print("There are {0} producible targets:\n\t{1}".format(
+                    len(prodtargets), "\n\t".join(prodtargets)))
         else:
-            logger.info("sucessful gap-filling")
+            if not args.json:
+                print("No target is producible.")
 
-        logger.info("{0} reactions to be added".format(len(chosen_rxn)))
-        logger.info("\n".join(chosen_rxn))
+        result['Unproducible targets'] = unprodtargets
+        if len(unprodtargets) > 0:
+            if not args.json:
+                print("There are still {0} unproducible targets:\n\t{1}".format(
+                    len(unprodtargets), "\n\t".join(unprodtargets)))
+        else:
+            if not args.json:
+                print("All targets are producible.")
 
-        if flux:
-            logger.info(
-                "Flux value in objective function(s): {0}".format(lp_assignment[0]))
-        elif not args.no_fba:
-            logger.info("No flux in objective reaction")
+        result['Added reactions'] = chosen_rxn
+        if len(chosen_rxn) > 0:
+            if not args.json:
+                print("{0} reactions to be added:\n\t{1}".format(
+                    len(chosen_rxn), "\n\t".join(chosen_rxn)))
+        else:
+            if not args.json:
+                print("No reactions to be added.")
 
+        result['Accumulating metabolites'] = exports
+        if len(exports) > 0:
+            if not args.json:
+                print("{0} metabolites are accumulating:\n\t{1}".format(
+                    len(exports), "\n\t".join(exports)))
+        else:
+            if not args.json:
+                print("No metabolites are accumulating.")
+
+        if args.json:
+            print(result)
     pass
 
 

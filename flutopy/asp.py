@@ -12,25 +12,19 @@ logger = logging.getLogger(__name__)
 root = __file__.rsplit('/', 1)[0]
 
 
-def aspsolve_hybride(instance, encoding, handorf: bool, no_accu: bool, no_fba: bool, cplex: bool):
-
-    if handorf:
-        problem = "handorf."
-    else:
-        problem = "sagot."
-
-    if not no_fba:
-        problem += "fluxbalance."
-
-        if no_accu:
-            problem += "no_accumulation."
-        else:
-            problem += "allow_accumulation."
+def aspsolve_hybride(instance, encoding, handorf: bool, no_accumulation: bool, no_fba: bool, cplex: bool):
 
     with open(encoding, 'r') as f:
-        problem += f.read()
+        problem = f.read()
     with open(instance, 'r') as f:
         problem += f.read()
+
+    if handorf:
+        problem += "handorf."
+    if no_fba:
+        problem += "no_fba."
+    elif no_accumulation:
+        problem += "no_accumulation."
 
     clingoLP = Control(cplex)
     clingoLP.add(problem)
@@ -42,7 +36,7 @@ def aspsolve_hybride(instance, encoding, handorf: bool, no_accu: bool, no_fba: b
 
 class Control:
     def __init__(self, cplex: bool):
-        self.clingo = clingo.Control(['--warn=none'])
+        self.clingo = clingo.Control(['--warn=none', '0'])
         self.clingo.add("base", [], clingolp.lp_theory.theory)
         if cplex:
             solver = 'cplx'
