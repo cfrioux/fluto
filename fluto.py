@@ -91,7 +91,7 @@ def main():
     if not args.json:
         print("Model file: {0}".format(args.model))
 
-    result['Seeds'] = args.seeds
+    result['Seeds file'] = args.seeds
     if not args.json:
         print("Seeds file: {0}".format(args.seeds))
 

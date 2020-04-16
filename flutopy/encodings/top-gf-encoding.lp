@@ -134,5 +134,6 @@ acc(M) :- &sum{M} > 0, metabolite'(M,T), fluxbalance, allow_accumulation.
 #minimize{ 1@2,R : completion(R) }.
 
 #show completion/1.
+#show producible_target/1.
 #show unreachable/1.
 #show acc/1.
