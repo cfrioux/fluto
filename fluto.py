@@ -18,6 +18,7 @@
 # -*- coding: utf-8 -*-
 
 import time
+import json
 import argparse
 import logging
 from flutopy import utils, asp, commons
@@ -125,7 +126,7 @@ def main():
     if not args.no_fba and lp_assignment == None:
         logger.info("No positive flux solution was found")
         result['Result'] = 'NO POSITIVE FLUX SOLUTION'
-        print(result)
+        print(json.dumps(result))
         quit()
 
     prodtargets = []
@@ -143,7 +144,7 @@ def main():
         elif elem.pred() == 'acc':
             exports.append(elem.arg(0)[1:-1])
         else:
-            print(elem)
+            logger.warning('Unexpected atom in solution {0}'.format(elem))
 
     if not args.no_fba:
         try:
@@ -197,7 +198,7 @@ def main():
             print("No metabolites are accumulating.\n")
 
     if args.json:
-        print(result)
+        print(json.dumps(result))
     pass
 
 
