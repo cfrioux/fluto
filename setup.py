@@ -20,7 +20,7 @@ from setuptools import setup
 
 setup(
     name='Flutopy',
-    version='2.0.0dev',
+    version='2.0.0dev0',
     # url              = 'https://github.com/cfrioux/fluto',
     license='GPLv3+',
     description='Hybrid gap-filling tool',
