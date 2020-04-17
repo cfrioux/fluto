@@ -8,23 +8,38 @@ from pyasp.term import TermSet
 import logging
 logger = logging.getLogger(__name__)
 
+# Root
+ROOT = __file__.rsplit('/', 1)[0]
+DIR_ASP_SOURCES = '/encodings/'
 
-root = __file__.rsplit('/', 1)[0]
+# ASP SOURCES
+ASP_SRC_FLUTO = ROOT + DIR_ASP_SOURCES + 'top-gf-encoding.lp'
+# TOPOLOGICAL CRITERIA
+TOPO_SAGOT = ROOT + DIR_ASP_SOURCES + 'topo-sagot.lp'
+TOPO_HANDORF = ROOT + DIR_ASP_SOURCES + 'topo-handorf.lp'
+FBA = ROOT + DIR_ASP_SOURCES + 'fba.lp'
 
 
-def aspsolve_hybride(instance, encoding, handorf: bool, no_accumulation: bool, no_fba: bool, cplex: bool):
+def aspsolve_hybride(instance, handorf: bool, no_accumulation: bool, no_fba: bool, cplex: bool):
 
-    with open(encoding, 'r') as f:
+    print(ASP_SRC_FLUTO)
+    with open(ASP_SRC_FLUTO, 'r') as f:
         problem = f.read()
+    if handorf:
+        with open(TOPO_HANDORF, 'r') as f:
+            problem += f.read()
+    else:
+        with open(TOPO_SAGOT, 'r') as f:
+            problem += f.read()
+
     with open(instance, 'r') as f:
         problem += f.read()
 
-    if handorf:
-        problem += "handorf."
-    if no_fba:
-        problem += "no_fba."
-    elif no_accumulation:
-        problem += "no_accumulation."
+    if not no_fba:
+        with open(FBA, 'r') as f:
+            problem += f.read()
+        if no_accumulation:
+            problem += "no_accumulation."
 
     clingoLP = Control(cplex)
     clingoLP.add(problem)
@@ -36,7 +51,8 @@ def aspsolve_hybride(instance, encoding, handorf: bool, no_accumulation: bool, n
 
 class Control:
     def __init__(self, cplex: bool):
-        self.clingo = clingo.Control(['--warn=none', '0'])
+        self.clingo = clingo.Control(['--warn=none',
+                                      '0', '--opt-mode=optN'])
         self.clingo.add("base", [], clingolp.lp_theory.theory)
         if cplex:
             solver = 'cplx'

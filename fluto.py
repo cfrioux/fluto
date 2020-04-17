@@ -21,7 +21,7 @@ import time
 import json
 import argparse
 import logging
-from flutopy import utils, asp, commons
+from flutopy import utils, asp
 
 logging.basicConfig(format='%(message)s', level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -121,7 +121,7 @@ def main():
     print()
 
     lp_assignment, solumodel = asp.aspsolve_hybride(
-        lpoutput, commons.ASP_SRC_FLUTO, args.handorf, args.no_accumulation, args.no_fba, args.cplex)
+        lpoutput, args.handorf, args.no_accumulation, args.no_fba, args.cplex)
 
     if not args.no_fba and lp_assignment == None:
         logger.info("No positive flux solution was found")
