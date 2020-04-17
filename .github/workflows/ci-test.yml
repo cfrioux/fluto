@@ -22,7 +22,7 @@ jobs:
           source ~/.bashrc
           conda activate fluto
           python setup.py install
-      #     pytest -v ./flutopy/tests/test.py
+          pytest flutopy/tests/test.py
   # build-macos:
   #   runs-on: "macos-latest"
   #   strategy:
@@ -42,7 +42,7 @@ jobs:
   #         source /Users/runner/.bash_profile
   #         conda activate fluto
   #         python setup.py install
-  #     #     pytest -v ./flutopy/tests/test.py
+  #         pytest flutopy/tests/test.py
   # build-windows:
   #   runs-on: "windows-latest"
   #   strategy:
@@ -59,4 +59,4 @@ jobs:
   #     - name: Test fluto
   #       run: |
   #         python setup.py install
-  #     #     pytest -v ./flutopy/tests/test.py
+  #         pytest flutopy/tests/test.py

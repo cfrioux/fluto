@@ -9,7 +9,7 @@ edge(R,M,N) :- reaction'(R,T), rct'(N,_,R,T), prd'(M,_,R,T), reversible(R), T!=r
 % draft scope à la fluto1
 dscope(M) :- seed(M).
 dscope(M) :- metabolite'(M,s).
-dscope(M) :- edge(R,_,M), T!=r, dscope(N):edge(R,N,_).
+dscope(M) :- edge(R,_,M), dscope(N):edge(R,N,_).
 
 % choose completion
 { completion(R) : reaction'(R,r), not reaction'(R,d) } :- sagot.

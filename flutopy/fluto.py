@@ -17,9 +17,7 @@
 # along with fluto.  If not, see <http://www.gnu.org/licenses/>.
 # -*- coding: utf-8 -*-
 
-import time
 import json
-import argparse
 import logging
 from flutopy import utils, asp
 from flutopy.utils import Topology
@@ -29,113 +27,53 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-###############################################################################
-#
-message = """
-Performs hybrid (topological/flux) gap-filling"""
-
-requires = """
-requires Python Clingo, PyASP and CPLEX packages. See README and INSTALL
-"""
-#
-###############################################################################
-
-
-def parsing():
-    parser = argparse.ArgumentParser(
-        description=message, epilog=requires, prog='fluto')  # , usage=msg()
-    parser.add_argument("-m", "--model",
-                        help="organism metabolic model in SBML format",
-                        required=True)
-    parser.add_argument("-r", "--repairbase",
-                        help="database of reactions for gap-filling",
-                        required=False)
-    parser.add_argument('-s', '--seeds',
-                        help='use topological seeds that are not defined via reactions in the model. \
-                        Txt file with one seed ID per line ', required=False)
-
-    topo_group = parser.add_mutually_exclusive_group()
-    topo_group.add_argument('--handorf',
-                            help='use scope notion of Handorf & Ebenhöh \
-                        for the topological produciblity criterium.\
-                        Default is the notion of Sagot & Acuna.', required=False, action="store_true", default=False)
-
-    topo_group.add_argument('--fluto1',
-                            help='use scope notion of the first fluto version \
-                        for the topological produciblity criterium.\
-                        Default is the notion of Sagot & Acuna.', required=False, action="store_true", default=False)
-
-    parser.add_argument("--no-accumulation",
-                        help="allow the accumulation of metabolites.\
-                            Per default the accumulation of metabolites is allowed.",
-                        required=False, action="store_true", default=False)
-
-    parser.add_argument("--no-fba",
-                        help="turn off flux balance constraints.",
-                        required=False, action="store_true", default=False)
-
-    parser.add_argument("--cplex",
-                        help="use CPLEX solver",
-                        required=False, action="store_true", default=False)
-
-    parser.add_argument("--json",
-                        help="produce JSON output",
-                        required=False, action="store_true", default=False)
-
-    args = parser.parse_args()
-
-    return args
-
-
-def main():
-
-    args = parsing()
+def run_fluto(model, seeds, repairbase, handorf, fluto1, no_fba, no_accumulation, cplex, json):
 
     result = {}
     lpoutput, objective_reactions = utils.make_instance_fluto(
-        args.model, args.seeds, args.repairbase)
+        model, seeds, repairbase)
 
-    result['Model file'] = args.model
+    result['Model file'] = model
     result['Objective reactions'] = objective_reactions
-    result['Seeds file'] = args.seeds
-    result['Repair DB'] = args.repairbase
+    result['Seeds file'] = seeds
+    result['Repair DB'] = repairbase
 
-    if args.handorf:
+    if handorf:
         topo = Topology.HANDORF
-    elif args.fluto1:
+    elif fluto1:
         topo = Topology.FLUTO1
     else:
         topo = Topology.SAGOT
     result['Topological criterium'] = topo
 
-    if args.no_fba:
+    if no_fba:
         result['Flux balance criterium'] = 'OFF'
     else:
         result['Flux balance criterium'] = 'ON'
-        if args.no_accumulation:
+        if no_accumulation:
             result['Accumulation'] = 'FORBIDDEN'
         else:
             result['Accumulation'] = 'ALLOWED'
 
-    if not args.json:
-        print("Model file: {0}".format(args.model))
+    if not json:
+        print("Model file: {0}".format(model))
         print("Objective reaction(s): " + ",".join(objective_reactions))
-        print("Seeds file: {0}".format(args.seeds))
-        print("Repair DB: {0}\n".format(args.repairbase))
+        print("Seeds file: {0}".format(seeds))
+        print("Repair DB: {0}\n".format(repairbase))
         print('Topological criterium: {0}'.format(
             result['Topological criterium']))
 
         print('Flux balance criterium: {0}'.format(
             result['Flux balance criterium']))
 
-        if not args.no_fba:
+        if not no_fba:
             print('Accumulation: {0}'.format(result['Accumulation']))
     print()
 
     lp_assignment, solumodel = asp.aspsolve_hybride(
-        lpoutput, topo, args.no_accumulation, args.no_fba, args.cplex)
+        lpoutput, topo, no_accumulation, no_fba, cplex)
 
-    if not args.no_fba and lp_assignment == None:
+    if not no_fba and lp_assignment == None:
         logger.info("No positive flux solution was found")
         result['Result'] = 'NO POSITIVE FLUX SOLUTION'
         print(json.dumps(result))
@@ -158,16 +96,16 @@ def main():
         else:
             logger.warning('Unexpected atom in solution {0}'.format(elem))
 
-    if not args.no_fba:
+    if not no_fba:
         try:
             result['Flux'] = lp_assignment[0]
         except Exception as e:
             logger.error(
                 'Unexpected solver value: {0}'.format(lp_assignment[0]))
             logger.error(e)
-            quit()
+            return result
 
-        if not args.json:
+        if not json:
             print("Flux value in objective function(s): {0}\n".format(
                 lp_assignment[0]))
         if lp_assignment[0] <= 1e-5:
@@ -176,46 +114,38 @@ def main():
 
     result['Producible targets'] = prodtargets
     if len(prodtargets) > 0:
-        if not args.json:
+        if not json:
             print("There are {0} producible targets:\n\t{1}\n".format(
                 len(prodtargets), "\n\t".join(prodtargets)))
     else:
-        if not args.json:
+        if not json:
             print("No target is producible.\n")
 
     result['Unproducible targets'] = unprodtargets
     if len(unprodtargets) > 0:
-        if not args.json:
+        if not json:
             print("There are still {0} unproducible targets:\n\t{1}\n".format(
                 len(unprodtargets), "\n\t".join(unprodtargets)))
     else:
-        if not args.json:
+        if not json:
             print("All targets are producible.\n")
 
     result['Added reactions'] = chosen_rxn
     if len(chosen_rxn) > 0:
-        if not args.json:
+        if not json:
             print("{0} reactions to be added:\n\t{1}\n".format(
                 len(chosen_rxn), "\n\t".join(chosen_rxn)))
     else:
-        if not args.json:
+        if not json:
             print("No reactions to be added.\n")
 
     result['Accumulating metabolites'] = exports
     if len(exports) > 0:
-        if not args.json:
+        if not json:
             print("{0} metabolites are accumulating:\n\t{1}\n".format(
                 len(exports), "\n\t".join(exports)))
     else:
-        if not args.json:
+        if not json:
             print("No metabolites are accumulating.\n")
 
-    if args.json:
-        print(json.dumps(result))
-    pass
-
-
-if __name__ == '__main__':
-    # start_time = time.time()
-    main()
-    utils.clean_up()
+    return result

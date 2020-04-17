@@ -1,15 +1,15 @@
-import subprocess
-from subprocess import PIPE
 import json
+from subprocess import PIPE
+from flutopy.fluto import run_fluto
+import subprocess
+import sys
+sys.path.append('../')
 
 
-def test_example():
-    p = subprocess.run(['python', 'fluto.py', '-m', 'data/toy/draft.xml', '-r', 'data/toy/repairdb.xml'
-                        # ,'--json'
-                        ], stdout=PIPE, stderr=PIPE)
+def test_fluto():
+    result = run_fluto(
+        'data/toy/draft.xml', seeds=None, repairbase='data/toy/repairdb.xml', handorf=True, fluto1=False, no_fba=True, no_accumulation=False, cplex=False, json=True)
+    assert result['Topological criterium'] == 'Handorf'
 
-    print(p.stdout)
-    # print(p.stderr)
-    # out = json.loads(p.stdout)
 
-    assert (out['Call'][0]['Result'] == 'SATISFIABLE')
+test_fluto()
