@@ -14,8 +14,7 @@ ROOT = __file__.rsplit('/', 1)[0]
 DIR_ASP_SOURCES = '/encodings/'
 
 # ASP SOURCES
-ASP_SRC_FLUTO = ROOT + DIR_ASP_SOURCES + 'top-gf-encoding.lp'
-# TOPOLOGICAL CRITERIA
+COMMON_FLUTO = ROOT + DIR_ASP_SOURCES + 'common-fluto.lp'
 TOPO_SAGOT = ROOT + DIR_ASP_SOURCES + 'topo-sagot.lp'
 TOPO_HANDORF = ROOT + DIR_ASP_SOURCES + 'topo-handorf.lp'
 TOPO_FLUTO1 = ROOT + DIR_ASP_SOURCES + 'topo-fluto1.lp'
@@ -24,8 +23,7 @@ FBA = ROOT + DIR_ASP_SOURCES + 'fba.lp'
 
 def aspsolve_hybride(instance, topo: Topology, no_accumulation: bool, no_fba: bool, cplex: bool):
 
-    print(ASP_SRC_FLUTO)
-    with open(ASP_SRC_FLUTO, 'r') as f:
+    with open(COMMON_FLUTO, 'r') as f:
         problem = f.read()
     if topo == Topology.HANDORF:
         with open(TOPO_HANDORF, 'r') as f:

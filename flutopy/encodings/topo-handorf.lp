@@ -2,6 +2,17 @@
 %%%%            à la Handorf & Ebenhöh               %%%%
 handorf.
 
+% draft scope
+dscope(M) :- seed(M).
+dscope(M) :- metabolite'(M,s).
+dscope(M) :- dscope(N):rct'(N,_,R,T'), T'!=r; reaction'(R,T), prd'(M,_,R,T), T!=r.
+dscope(M) :- dscope(N):prd'(N,_,R,T'), T'!=r; reaction'(R,T), reversible(R), rct'(M,_,R,T), T!=r.
+
+% potential scope (with all reactions)
+pscope(M) :- dscope(M).
+pscope(M) :- pscope(N):rct'(N,_,R,_); reaction'(R,T), prd'(M,_,R,_).
+pscope(M) :- pscope(N):prd'(N,_,R,_); reaction'(R,T), reversible(R), rct'(M,_,R,_).
+
 % choose completion
 % { completion(R) : reaction'(R,r), not reaction'(R,d), prd'(M,_,R,r), pscope(M) } :- handorf.
 help(R) :- pscope(M):rct'(M,_,R,r); reaction'(R,r), not reaction'(R,d), prd'(M,_,R,r), pscope(M), handorf.

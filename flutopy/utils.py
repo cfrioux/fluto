@@ -4,7 +4,7 @@ from enum import Enum, unique
 import clingo
 import os
 import tempfile
-from flutopy import sbml_fluto
+from flutopy import sbml
 import logging
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ def make_instance_fluto(model, seeds_sbml, repair=None):
                                      suffix='.lp',
                                      delete=False) as tmp:
         try:
-            draftnet, seeds, targets, obj_rxn = sbml_fluto.readSBMLnetwork(
+            draftnet, seeds, targets, obj_rxn = sbml.readSBMLnetwork(
                 model, 'd')
         except IOError:
             logger.error(
@@ -61,7 +61,7 @@ def make_instance_fluto(model, seeds_sbml, repair=None):
 
         if repair != None:
             try:
-                repairnet = sbml_fluto.readSBMLnetwork(repair, 'r')[0]
+                repairnet = sbml.readSBMLnetwork(repair, 'r')[0]
             except IOError:
                 logger.error(
                     'Error while opening {0}. Please check the input file'.format(repair))

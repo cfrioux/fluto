@@ -6,7 +6,7 @@ edge(R,M,N,T) :- reaction'(R,T), rct'(M,_,R,T), prd'(N,_,R,T).
 edge(R,M,N,T) :- reaction'(R,T), rct'(N,_,R,T), prd'(M,_,R,T), reversible(R).
 
 % draft scope
-scope(M,d) :- seed(M), topo_seeds=1.
+scope(M,d) :- seed(M).
 scope(M,d) :- metabolite'(M,s).
 scope(M,d) :- edge(R,_,M,T), T!=r, scope(N,d):edge(R,N,_,T'), N!=M, T'!=r.
 
