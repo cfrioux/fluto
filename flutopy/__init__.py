@@ -1,17 +1,19 @@
+"""
+The flutopy module contains functions to perform hybrid (topological/flux) gap-filling.
+Functions:
+main  -- Main function starting the fluto application.
+"""
+
 from flutopy.fluto import run_fluto
 import json
 import argparse
 
-###############################################################################
-#
 message = """
 Performs hybrid (topological/flux) gap-filling"""
 
 requires = """
 requires Python, Clingo, PyASP and CPLEX packages, see README.md
 """
-#
-###############################################################################
 
 
 def parsing():
