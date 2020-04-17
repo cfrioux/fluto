@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from enum import Enum
+from enum import Enum, unique
 import clingo
 import os
 import tempfile
@@ -9,10 +9,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class Topology(Enum):
-    HANDORF = 1
-    FLUTO1 = 2
-    SAGOT = 3
+@unique
+class Topology(str, Enum):
+    HANDORF = "Handorf"
+    FLUTO1 = "Fluto1"
+    SAGOT = "Sagot"
 
 
 def clean_up():
