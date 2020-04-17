@@ -24,8 +24,10 @@ setup(
     # url              = 'https://github.com/cfrioux/fluto',
     license='GPLv3+',
     description='Hybrid gap-filling tool',
-    long_description='Hybrid gap-filling tool for metabolic models. Fluto proposes solutions that fit constraint-based (FLUx balance analysis) and graph-based (TOpology) modelings of producibility. \
-More information on usage and troubleshooting on Github: https://github.com/cfrioux/fluto',
+    long_description='Hybrid gap-filling tool for metabolic models.\
+        Fluto proposes solutions that fit stoichiometry - based(FLUx balance analysis)\
+        and graph - based(TOpology) modelings of producibility.\
+        More information on usage and troubleshooting on Github: https://github.com/cfrioux/fluto',
     author='Clemence Frioux',
     author_email='clemence.frioux@gmail.com',
     packages=['flutopy'],
