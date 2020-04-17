@@ -5,6 +5,7 @@ main  -- Main function starting the fluto application.
 """
 
 from flutopy.fluto import run_fluto
+import flutopy.utils as utils
 import json
 import argparse
 
@@ -72,3 +73,5 @@ def main():
                        args.handorf, args.fluto1, args.no_fba, args.no_accumulation, args.cplex, args.json)
     if args.json:
         print(json.dumps(result))
+
+    utils.clean_up()
