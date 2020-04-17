@@ -8,7 +8,7 @@ message = """
 Performs hybrid (topological/flux) gap-filling"""
 
 requires = """
-requires Python Clingo, PyASP and CPLEX packages. See README and INSTALL
+requires Python, Clingo, PyASP and CPLEX packages, see README.md
 """
 #
 ###############################################################################
@@ -24,27 +24,29 @@ def parsing():
                         help="database of reactions for gap-filling",
                         required=False)
     parser.add_argument('-s', '--seeds',
-                        help='use topological seeds that are not defined via reactions in the model. \
-                        Txt file with one seed ID per line ', required=False)
+                        help='use topological seeds that are not defined via reactions in the model,\
+                        txt file with one seed ID per line', required=False)
 
     topo_group = parser.add_mutually_exclusive_group()
     topo_group.add_argument('--handorf',
                             help='use scope notion of Handorf & Ebenhöh \
-                        for the topological produciblity criterium.\
-                        Default is the notion of Sagot & Acuna.', required=False, action="store_true", default=False)
+                                for the topological produciblity criterium,\
+                                default is the notion of Sagot & Acuna',
+                            required=False, action="store_true", default=False)
 
     topo_group.add_argument('--fluto1',
-                            help='use scope notion of the first fluto version \
-                        for the topological produciblity criterium.\
-                        Default is the notion of Sagot & Acuna.', required=False, action="store_true", default=False)
+                            help='use scope notion of the first fluto version\
+                                for the topological produciblity criterium,\
+                                default is the notion of Sagot & Acuna',
+                            required=False, action="store_true", default=False)
 
     parser.add_argument("--no-accumulation",
-                        help="allow the accumulation of metabolites.\
-                            Per default the accumulation of metabolites is allowed.",
+                        help="allow the accumulation of metabolites,\
+                            per default the accumulation of metabolites is allowed",
                         required=False, action="store_true", default=False)
 
     parser.add_argument("--no-fba",
-                        help="turn off flux balance constraints.",
+                        help="turn off flux balance constraints",
                         required=False, action="store_true", default=False)
 
     parser.add_argument("--cplex",

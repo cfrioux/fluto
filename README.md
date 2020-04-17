@@ -40,26 +40,40 @@ For the full version follow the [IBM installation procedure](https://www.ibm.com
 ## Usage
 
 ```text
-$ python fluto.py -h
-usage: fluto.py [-h] -m MODEL [-r REPAIRBASE] [-s SEEDS] [-e]
+> fluto -h
+usage: fluto [-h] -m MODEL [-r REPAIRBASE] [-s SEEDS] [--handorf | --fluto1]
+             [--no-accumulation] [--no-fba] [--cplex] [--json]
+
 Performs hybrid (topological/flux) gap-filling
+
 optional arguments:
--h, --help            show this help message and exit
--m MODEL, --model MODEL
-                    organism metabolic model in SBML format
--r REPAIRBASE, --repairbase REPAIRBASE
-                    database of reactions for gap-filling
--s SEEDS, --seeds SEEDS
-                    topological seeds to unblock circular dependencies in
-                    the graph. Txt file with one seed ID per line
--e, --export          enabling export of compounds to prevent metabolite
-                    accumulation
-requires Python clingoLP, PyASP and Cplex packages. See README and INSTALL
+  -h, --help            show this help message and exit
+  -m MODEL, --model MODEL
+                        organism metabolic model in SBML format
+  -r REPAIRBASE, --repairbase REPAIRBASE
+                        database of reactions for gap-filling
+  -s SEEDS, --seeds SEEDS
+                        use topological seeds that are not defined via
+                        reactions in the model, txt file with one seed ID per
+                        line
+  --handorf             use scope notion of Handorf & Ebenhöh for the
+                        topological produciblity criterium, default is the
+                        notion of Sagot & Acuna
+  --fluto1              use scope notion of the first fluto version for the
+                        topological produciblity criterium, default is the
+                        notion of Sagot & Acuna
+  --no-accumulation     allow the accumulation of metabolites, per default the
+                        accumulation of metabolites is allowed
+  --no-fba              turn off flux balance constraints
+  --cplex               use CPLEX solver
+  --json                produce JSON output
+
+requires Python, Clingo, PyASP and CPLEX packages, see README.md
 ```
 
 ### Example
 
-`python fluto.py -m data/toy/draft.xml -s data/toy/toposeeds.txt -r data/toy/repairdb.xml`
+`fluto -m data/toy/draft.xml -s data/toy/toposeeds.txt -r data/toy/repairdb.xml`
 
 ## Publication
 
