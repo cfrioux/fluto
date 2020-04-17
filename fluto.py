@@ -166,11 +166,12 @@ def main():
                 'Unexpected solver value: {0}'.format(lp_assignment[0]))
             logger.error(e)
             quit()
-        if lp_assignment[0] > 1e-5:
-            logger.info(
-                "Flux value in objective function(s): {0}\n".format(lp_assignment[0]))
-        else:
-            print('No flux in objective reaction: {0}\n'.format(
+
+        if not args.json:
+            print("Flux value in objective function(s): {0}\n".format(
+                lp_assignment[0]))
+        if lp_assignment[0] <= 1e-5:
+            logger.warning('No flux in objective reaction: {0}\n'.format(
                 lp_assignment[0]))
 
     result['Producible targets'] = prodtargets
