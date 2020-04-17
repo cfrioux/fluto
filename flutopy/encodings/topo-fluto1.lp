@@ -15,7 +15,7 @@ scope(M,x) :- scope(M,d).
 scope(M,x) :- edge(R,_,M,_), scope(N,x):edge(R,N,_,_), N!=M.
 
 % choose completion
-{ completion(R) : edge(R,M,N,r), not edge(R,M,N,d), scope(M,x), scope(N,x) } :- cspace_opt=0.
+{ completion(R) : edge(R,M,N,r), not edge(R,M,N,d), scope(M,x), scope(N,x) }.
 
 %%%%%%%%%% REACHABILITY ENCODING %%%%%%%%%%%
 
@@ -25,6 +25,7 @@ scope(M,c) :- edge(R,_,M,T), T!=r, scope(N,c):edge(R,N,_,T'), T'!=r, N!=M.
 scope(M,c) :- completion(R), edge(R,_,M,r), scope(N,c):edge(R,N,_,r), N!=M.
 
 % each target of scope need to be reached
-:- metabolite'(M,t), not scope(M,c), reachability=1, unreachable=0.
-:- metabolite'(M,t), scope(M,x), not scope(M,c), reachability=1, unreachable=1.
-unreachable(M) :- metabolite'(M,t), not scope(M,x), unreachable=1, reachability=1.
+:- metabolite'(M,t), not scope(M,c), unreachable=0.
+:- metabolite'(M,t), scope(M,x), not scope(M,c), unreachable=1.
+unreachable(M) :- metabolite'(M,t), not scope(M,x), unreachable=1.
+producible_target(M) :- metabolite'(M,t), scope(M,c).

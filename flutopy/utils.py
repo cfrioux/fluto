@@ -1,11 +1,18 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+from enum import Enum
 import clingo
 import os
 import tempfile
 from flutopy import sbml_fluto
 import logging
 logger = logging.getLogger(__name__)
+
+
+class Topology(Enum):
+    HANDORF = 1
+    FLUTO1 = 2
+    SAGOT = 3
 
 
 def clean_up():

@@ -22,6 +22,7 @@ import json
 import argparse
 import logging
 from flutopy import utils, asp
+from flutopy.utils import Topology
 
 logging.basicConfig(format='%(message)s', level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -53,8 +54,14 @@ def parsing():
                         help='use topological seeds that are not defined via reactions in the model. \
                         Txt file with one seed ID per line ', required=False)
 
-    parser.add_argument('--handorf',
-                        help='use scope notion of Handorf & Ebenhöh \
+    topo_group = parser.add_mutually_exclusive_group()
+    topo_group.add_argument('--handorf',
+                            help='use scope notion of Handorf & Ebenhöh \
+                        for the topological produciblity criterium.\
+                        Default is the notion of Sagot & Acuna.', required=False, action="store_true", default=False)
+
+    topo_group.add_argument('--fluto1',
+                            help='use scope notion of the first fluto version \
                         for the topological produciblity criterium.\
                         Default is the notion of Sagot & Acuna.', required=False, action="store_true", default=False)
 
@@ -92,10 +99,15 @@ def main():
     result['Objective reactions'] = objective_reactions
     result['Seeds file'] = args.seeds
     result['Repair DB'] = args.repairbase
+
     if args.handorf:
-        result['Topological criterium'] = 'HANDORF'
+        topo = Topology.HANDORF
+    elif args.fluto1:
+        topo = Topology.FLUTO1
     else:
-        result['Topological criterium'] = 'SAGOT'
+        topo = Topology.SAGOT
+    result['Topological criterium'] = topo
+
     if args.no_fba:
         result['Flux balance criterium'] = 'OFF'
     else:
@@ -121,7 +133,7 @@ def main():
     print()
 
     lp_assignment, solumodel = asp.aspsolve_hybride(
-        lpoutput, args.handorf, args.no_accumulation, args.no_fba, args.cplex)
+        lpoutput, topo, args.no_accumulation, args.no_fba, args.cplex)
 
     if not args.no_fba and lp_assignment == None:
         logger.info("No positive flux solution was found")
