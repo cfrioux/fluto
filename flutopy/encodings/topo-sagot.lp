@@ -2,12 +2,21 @@
 %%%%             à la Sagot & Acuña                  %%%%
 sagot.
 
+% edges
+edge(R,M,N) :- reaction'(R,T), rct'(M,_,R,T), prd'(N,_,R,T), T!=r, N!=M.
+edge(R,M,N) :- reaction'(R,T), rct'(N,_,R,T), prd'(M,_,R,T), reversible(R), T!=r, N!=M.
+
+% draft scope à la fluto1
+dscope(M) :- seed(M).
+dscope(M) :- metabolite'(M,s).
+dscope(M) :- edge(R,_,M), T!=r, dscope(N):edge(R,N,_).
+
 % choose completion
 { completion(R) : reaction'(R,r), not reaction'(R,d) } :- sagot.
 % { completion(R) } :- present(M):rct'(M,_,R,r); reaction'(R,r), not reaction'(R,d), sagot.
 % { completion(R) } :- present(M):prd'(M,_,R,r); reaction'(R,r), not reaction'(R,d), reversible(R), sagot.
 
-reach(X) :- pscope(X), sagot.
+reach(X) :- dscope(X), sagot.
 reach(X) :- prd'(X,_,R,T), rct'(Y,_,R,T), reach(Y), sagot.
 reach(X) :- rct'(X,_,R,T), prd'(Y,_,R,T), reach(Y), bounds(R,L,U), L<0, sagot.
 
