@@ -12,8 +12,8 @@ def test_fluto():
     assert result['Topological criterium'] == 'Handorf'
     assert result['Flux balance criterium'] == 'OFF'
     assert result['Objective reactions'] == ["R5"]
-    assert result['Producible targets'] == ["a", "c"]
-    assert result['Added reactions'] == ["R7", "R6"]
+    assert set(result['Producible targets']) == set(["a", "c"])
+    assert set(result['Added reactions']) == set(["R7", "R6"])
     assert result['Accumulating metabolites'] == []
 
 
