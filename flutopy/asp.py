@@ -5,7 +5,8 @@ from flutopy.utils import Topology
 import clingo
 import clingolp
 from clingolp.lp_theory import Propagator as LpPropagator
-from pyasp.term import TermSet
+from clyngor.as_pyasp import TermSet, Atom
+from clyngor.parsing import Parser
 import logging
 logger = logging.getLogger(__name__)
 
@@ -86,7 +87,8 @@ class Control:
         solve_result = self.clingo.solve(on_model=self.copy_assignment)
         if solve_result.satisfiable:
             try:
-                termsetfrommodel = TermSet.from_string(self.model)
+                termsetfrommodel = TermSet(
+                    Atom.from_tuple_repr(atom) for atom in Parser().parse_terms(self.model))
             except Exception as e:
                 logger.error('Error parsing solution: {0}'.format(e))
                 logger.error('Solution: {0}'.format(self.model))

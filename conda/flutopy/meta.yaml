@@ -1,6 +1,6 @@
 package:
   name: flutopy
-  version: "1.0.0"
+  version: "2.0.0dev0"
 
 source:
   #git_rev: v1.0.0
@@ -12,9 +12,8 @@ requirements:
     - setuptools
   run:
     - python 3.6
-    - pyasp >=1.4.3
-    - clingo
-    - cplex
+    - clyngor
+    - clingo-lp
 
 about:
   home: https://github.com/cfrioux/fluto
@@ -24,8 +23,7 @@ about:
 
 test:
   imports:
-    - clingo
-    - cplex
-    - pyasp
+    - clingolp
+    - clyngor
   commands:
-    - fluto.py -h
+    - fluto -h

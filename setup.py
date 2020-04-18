@@ -34,4 +34,5 @@ setup(
     package_dir={'flutopy': 'flutopy'},
     package_data={'flutopy': ['encodings/*.lp']},
     entry_points={'console_scripts': ['fluto = flutopy:main']},
+    install_requires=['clyngor']
 )
