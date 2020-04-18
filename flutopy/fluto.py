@@ -85,14 +85,14 @@ def run_fluto(model, seeds, repairbase, handorf, fluto1, no_fba, no_accumulation
     exports = []
 
     for elem in solumodel:
-        if elem.pred() == 'producible_target':
-            prodtargets.append(elem.arg(0)[1:-1])
-        elif elem.pred() == 'unreachable':
-            unprodtargets.append(elem.arg(0)[1:-1])
-        elif elem.pred() == 'completion':
-            chosen_rxn.append(elem.arg(0)[1:-1])
-        elif elem.pred() == 'acc':
-            exports.append(elem.arg(0)[1:-1])
+        if elem.predicate == 'producible_target':
+            prodtargets.append(elem.arguments[0][1:-1])
+        elif elem.predicate == 'unreachable':
+            unprodtargets.append(elem.arguments[0][1:-1])
+        elif elem.predicate == 'completion':
+            chosen_rxn.append(elem.arguments[0][1:-1])
+        elif elem.predicate == 'acc':
+            exports.append(elem.arguments[0][1:-1])
         else:
             logger.warning('Unexpected atom in solution {0}'.format(elem))
 
