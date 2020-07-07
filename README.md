@@ -68,7 +68,7 @@ optional arguments:
   --cplex               use CPLEX solver
   --json                produce JSON output
 
-requires Python, Clingo, PyASP and CPLEX packages, see README.md
+requires Python, ClingoLP and CPLEX packages, see README.md
 ```
 
 ### Example

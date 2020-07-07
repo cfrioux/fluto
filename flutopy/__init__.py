@@ -13,7 +13,7 @@ message = """
 Performs hybrid (topological/flux) gap-filling"""
 
 requires = """
-requires Python, Clingo, PyASP and CPLEX packages, see README.md
+requires Python, ClingoLP and CPLEX packages, see README.md
 """
 
 
