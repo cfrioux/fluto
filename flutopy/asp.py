@@ -22,7 +22,7 @@ TOPO_FLUTO1 = ROOT + DIR_ASP_SOURCES + 'topo-fluto1.lp'
 FBA = ROOT + DIR_ASP_SOURCES + 'fba.lp'
 
 
-def aspsolve_hybride(instance, topo: Topology, no_accumulation: bool, no_fba: bool, cplex: bool):
+def aspsolve_hybride(instance, topo: Topology, enumerate: int, brave: bool, cautious: bool, no_accumulation: bool, no_fba: bool, cplex: bool):
 
     with open(COMMON_FLUTO, 'r') as f:
         problem = f.read()
@@ -45,19 +45,33 @@ def aspsolve_hybride(instance, topo: Topology, no_accumulation: bool, no_fba: bo
         if no_accumulation:
             problem += "no_accumulation."
 
-    clingoLP = Control(cplex)
+    clingoLP = Control(enumerate, cplex, brave, cautious)
     clingoLP.add(problem)
 
-    last_assignement, sol_model = clingoLP.solve()
+    solutions = clingoLP.solve()
 
-    return last_assignement, sol_model
+    return solutions
 
 
 class Control:
-    def __init__(self, cplex: bool):
-        self.clingo = clingo.Control(['--warn=none',
-                                      '0', '--opt-mode=optN'])
+    def __init__(self, n: int, cplex: bool, brave: bool, cautious: bool):
+        self.max = n
+        self.solutions = []
+        if brave:
+            self.unique = True
+            self.clingo = clingo.Control(['--warn=none',
+                                          '--opt-mode=optN', '--enum-mode=brave'])
+        elif cautious:
+            self.unique = True
+            self.clingo = clingo.Control(['--warn=none',
+                                          '--opt-mode=optN', '--enum-mode=cautious'])
+        else:
+            self.unique = False
+            self.clingo = clingo.Control(['--warn=none',
+                                          '--opt-mode=optN', str(self.max)])
+
         self.clingo.add("base", [], clingolp.lp_theory.theory)
+
         if cplex:
             solver = 'cplx'
         else:
@@ -76,28 +90,23 @@ class Control:
 
         self.clingo.register_propagator(self.prop)
         self.clingo.ground([("base", [])])
-        self.model = None
-        self.lp_assignment = None
 
     def add(self, prg):
         self.clingo.add("p", [], prg)
 
     def solve(self):
         self.clingo.ground([("p", [])])
-        solve_result = self.clingo.solve(on_model=self.copy_assignment)
-        if solve_result.satisfiable:
-            try:
-                termsetfrommodel = TermSet(
-                    Atom.from_tuple_repr(atom) for atom in Parser().parse_terms(self.model))
-            except Exception as e:
-                logger.error('Error parsing solution: {0}'.format(e))
-                logger.error('Solution: {0}'.format(self.model))
-                quit()
 
-            return (self.lp_assignment, termsetfrommodel)
-        else:
-            return (None, None)
+        _solve_result = self.clingo.solve(on_model=self.copy_assignment)
+        #    if solve_result.satisfiable:
+        return self.solutions
 
     def copy_assignment(self, m):
-        self.model = m.__repr__()
-        self.lp_assignment = self.prop.assignment(m.thread_id)
+        if m.optimality_proven:
+            termset_from_model = TermSet(
+                Atom.from_tuple_repr(atom) for atom in Parser().parse_terms(str(m)))
+            flux = self.prop.assignment(m.thread_id)
+            if self.unique:
+                self.solutions.clear()
+            self.solutions.append((termset_from_model, flux))
+        return True
