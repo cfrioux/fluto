@@ -40,9 +40,10 @@ For the full version follow the [IBM installation procedure](https://www.ibm.com
 ## Usage
 
 ```text
-> fluto -h
-usage: fluto [-h] -m MODEL [-r REPAIRBASE] [-s SEEDS] [--handorf | --fluto1]
-             [--no-accumulation] [--no-fba] [--cplex] [--json]
+❯ fluto -h
+usage: fluto [-h] -m MODEL [-r REPAIRBASE] [-s SEEDS] [-e N | -b | -c]
+             [--handorf | --fluto1] [--no-accumulation] [--no-fba] [--cplex]
+             [--json]
 
 Performs hybrid (topological/flux) gap-filling
 
@@ -56,6 +57,10 @@ optional arguments:
                         use topological seeds that are not defined via
                         reactions in the model, txt file with one seed ID per
                         line
+  -e N, --enumerate N   enumerate at most N solutions, default is 1, use 0 for
+                        all solutions
+  -b, --brave           compute the union of all solutions
+  -c, --cautious        compute the intersection of all solutions
   --handorf             use scope notion of Handorf & Ebenhöh for the
                         topological produciblity criterium, default is the
                         notion of Sagot & Acuna

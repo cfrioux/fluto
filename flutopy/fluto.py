@@ -27,125 +27,151 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-def run_fluto(model, seeds, repairbase, handorf, fluto1, no_fba, no_accumulation, cplex, json):
-
+def run_fluto(args):
     result = {}
     lpoutput, objective_reactions = utils.make_instance_fluto(
-        model, seeds, repairbase)
+        args.model, args.seeds, args.repairbase)
 
-    result['Model file'] = model
+    result['Model file'] = args.model
     result['Objective reactions'] = objective_reactions
-    result['Seeds file'] = seeds
-    result['Repair DB'] = repairbase
+    result['Seeds file'] = args.seeds
+    result['Repair DB'] = args.repairbase
 
-    if handorf:
+    if args.handorf:
         topo = Topology.HANDORF
-    elif fluto1:
+    elif args.fluto1:
         topo = Topology.FLUTO1
     else:
         topo = Topology.SAGOT
     result['Topological criterium'] = topo
 
-    if no_fba:
+    if args.no_fba:
         result['Flux balance criterium'] = 'OFF'
     else:
         result['Flux balance criterium'] = 'ON'
-        if no_accumulation:
+        if args.no_accumulation:
             result['Accumulation'] = 'FORBIDDEN'
         else:
             result['Accumulation'] = 'ALLOWED'
 
-    if not json:
-        print("Model file: {0}".format(model))
+    if args.brave:
+        result['Reasoning mode'] = 'BRAVE'
+    elif args.cautious:
+        result['Reasoning mode'] = 'CAUTIOUS'
+    else:
+        result['Reasoning mode'] = 'ENUMERATE'
+
+    if not args.json:
+        print("Model file: {0}".format(args.model))
         print("Objective reaction(s): " + ",".join(objective_reactions))
-        print("Seeds file: {0}".format(seeds))
-        print("Repair DB: {0}\n".format(repairbase))
+        print("Seeds file: {0}".format(args.seeds))
+        print("Repair DB: {0}\n".format(args.repairbase))
         print('Topological criterium: {0}'.format(
             result['Topological criterium']))
+        if args.brave:
+            print("Reasoning mode: BRAVE")
+        elif args.cautious:
+            print("Reasoning mode: CAUTIOUS")
+        else:
+            print("Reasoning mode: ENUMERATE")
 
         print('Flux balance criterium: {0}'.format(
             result['Flux balance criterium']))
 
-        if not no_fba:
+        if not args.no_fba:
             print('Accumulation: {0}'.format(result['Accumulation']))
     print()
 
-    lp_assignment, solumodel = asp.aspsolve_hybride(
-        lpoutput, topo, no_accumulation, no_fba, cplex)
+    solve_results = asp.aspsolve_hybride(
+        lpoutput, topo, args.enumerate, args.brave, args.cautious, args.no_accumulation, args.no_fba, args.cplex)
 
-    if not no_fba and lp_assignment == None:
-        logger.info("No positive flux solution was found")
-        result['Result'] = 'NO POSITIVE FLUX SOLUTION'
-        print(json.dumps(result))
-        quit()
-
-    prodtargets = []
-    unprodtargets = []
-    chosen_rxn = []
-    exports = []
-
-    for elem in solumodel:
-        if elem.predicate == 'producible_target':
-            prodtargets.append(elem.arguments[0][1:-1])
-        elif elem.predicate == 'unreachable':
-            unprodtargets.append(elem.arguments[0][1:-1])
-        elif elem.predicate == 'completion':
-            chosen_rxn.append(elem.arguments[0][1:-1])
-        elif elem.predicate == 'acc':
-            exports.append(elem.arguments[0][1:-1])
+    if not args.json:
+        if len(solve_results) > 0:
+            logger.info(str(len(solve_results)) + " solutions found\n")
         else:
-            logger.warning('Unexpected atom in solution {0}'.format(elem))
+            logger.info("No solutions found\n")
 
-    if not no_fba:
-        try:
-            result['Flux'] = lp_assignment[0]
-        except Exception as e:
-            logger.error(
-                'Unexpected solver value: {0}'.format(lp_assignment[0]))
-            logger.error(e)
-            return result
+    solutions = []
+    scounter = 1
+    for (solumodel, lp_assignment) in solve_results:
+        solution = {}
+        if not args.json:
+            print("# Solution {0}\n".format(scounter))
+            scounter += 1
+        if not args.no_fba and lp_assignment == None:
+            logger.info("No positive flux solution was found")
+            result['Result'] = 'NO POSITIVE FLUX SOLUTION'
+            print(json.dumps(result))
+            quit()
 
-        if not json:
-            print("Flux value in objective function(s): {0}\n".format(
-                lp_assignment[0]))
-        if lp_assignment[0] <= 1e-5:
-            logger.warning('No flux in objective reaction: {0}\n'.format(
-                lp_assignment[0]))
+        prodtargets = []
+        unprodtargets = []
+        chosen_rxn = []
+        exports = []
 
-    result['Producible targets'] = prodtargets
-    if len(prodtargets) > 0:
-        if not json:
-            print("There are {0} producible targets:\n\t{1}\n".format(
-                len(prodtargets), "\n\t".join(prodtargets)))
-    else:
-        if not json:
-            print("No target is producible.\n")
+        for elem in solumodel:
+            if elem.predicate == 'producible_target':
+                prodtargets.append(elem.arguments[0][1:-1])
+            elif elem.predicate == 'unreachable':
+                unprodtargets.append(elem.arguments[0][1:-1])
+            elif elem.predicate == 'completion':
+                chosen_rxn.append(elem.arguments[0][1:-1])
+            elif elem.predicate == 'acc':
+                exports.append(elem.arguments[0][1:-1])
+            else:
+                logger.warning('Unexpected atom in solution {0}'.format(elem))
 
-    result['Unproducible targets'] = unprodtargets
-    if len(unprodtargets) > 0:
-        if not json:
-            print("There are still {0} unproducible targets:\n\t{1}\n".format(
-                len(unprodtargets), "\n\t".join(unprodtargets)))
-    else:
-        if not json:
-            print("All targets are producible.\n")
+        if not args.no_fba:
+            try:
+                solution['Flux'] = lp_assignment[0]
+            except Exception as e:
+                logger.error(
+                    'Unexpected solver value: {0}'.format(lp_assignment[0]))
+                logger.error(e)
+                return result
 
-    result['Added reactions'] = chosen_rxn
-    if len(chosen_rxn) > 0:
-        if not json:
-            print("{0} reactions to be added:\n\t{1}\n".format(
-                len(chosen_rxn), "\n\t".join(chosen_rxn)))
-    else:
-        if not json:
-            print("No reactions to be added.\n")
+            if not args.json:
+                print("- flux value in objective function(s): {0}\n".format(
+                    lp_assignment[0]))
+            if lp_assignment[0] <= 1e-5:
+                logger.warning('No flux in objective reaction: {0}\n'.format(
+                    lp_assignment[0]))
 
-    result['Accumulating metabolites'] = exports
-    if len(exports) > 0:
-        if not json:
-            print("{0} metabolites are accumulating:\n\t{1}\n".format(
-                len(exports), "\n\t".join(exports)))
-    else:
-        if not json:
-            print("No metabolites are accumulating.\n")
+        solution['Producible targets'] = prodtargets
+        if len(prodtargets) > 0:
+            if not args.json:
+                print("- {0} producible targets:\n\t- {1}\n".format(
+                    len(prodtargets), "\n\t- ".join(prodtargets)))
+        else:
+            if not args.json:
+                print("- no target is producible\n")
 
+        solution['Unproducible targets'] = unprodtargets
+        if len(unprodtargets) > 0:
+            if not args.json:
+                print("- there are still {0} unproducible targets:\n\t- {1}\n".format(
+                    len(unprodtargets), "\n\t- ".join(unprodtargets)))
+        else:
+            if not args.json:
+                print("- all targets are producible\n")
+
+        solution['Added reactions'] = chosen_rxn
+        if len(chosen_rxn) > 0:
+            if not args.json:
+                print("- {0} reactions to be added:\n\t- {1}\n".format(
+                    len(chosen_rxn), "\n\t- ".join(chosen_rxn)))
+        else:
+            if not args.json:
+                print("- no reactions to be added\n")
+
+        solution['Accumulating metabolites'] = exports
+        if len(exports) > 0:
+            if not args.json:
+                print("- {0} metabolites are accumulating:\n\t- {1}\n".format(
+                    len(exports), "\n\t- ".join(exports)))
+        else:
+            if not args.json:
+                print("- no metabolites are accumulating\n")
+        solutions.append(solution)
+    result['Solutions'] = solutions
     return result
