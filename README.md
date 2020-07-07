@@ -18,10 +18,6 @@ Activate conda environment.
 
 - `conda activate fluto`
 
-### PyASP
-
-- `pip install pyasp`
-
 ### ClingoLP
 
 - `conda install -c potassco -c conda-forge clingo-lp`
