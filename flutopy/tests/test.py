@@ -59,7 +59,7 @@ def test_fluto4():
          '--no-fba', '--json'])
     print(args)
     result = run_fluto(args)
-    assert result['Reasoning mode'] == 'ENUMERATE'
+    assert result['Reasoning mode'] == 'ENUMERATE 2'
     assert result['Flux balance criterium'] == 'OFF'
     assert result['Objective reactions'] == ["R_exportT"]
     assert result['Solutions'][0]['Producible targets'] == ["T"]
