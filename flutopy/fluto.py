@@ -61,7 +61,7 @@ def run_fluto(args):
     elif args.cautious:
         result['Reasoning mode'] = 'CAUTIOUS'
     else:
-        result['Reasoning mode'] = 'ENUMERATE'
+        result['Reasoning mode'] = 'ENUMERATE {0}'.format(args.enumerate)
 
     if not args.json:
         print("Model file: {0}".format(args.model))
@@ -75,7 +75,7 @@ def run_fluto(args):
         elif args.cautious:
             print("Reasoning mode: CAUTIOUS")
         else:
-            print("Reasoning mode: ENUMERATE")
+            print("Reasoning mode: ENUMERATE {0}".format(args.enumerate))
 
         print('Flux balance criterium: {0}'.format(
             result['Flux balance criterium']))
