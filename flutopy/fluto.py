@@ -29,6 +29,8 @@ logger.setLevel(logging.DEBUG)
 
 def run_fluto(args):
     result = {}
+    if not args.json:
+        print("# Fluto analysis\n")
     lpoutput, objective_reactions = utils.make_instance_fluto(
         args.model, args.seeds, args.repairbase)
 
@@ -80,8 +82,8 @@ def run_fluto(args):
 
         if not args.no_fba:
             print('Accumulation: {0}'.format(result['Accumulation']))
-    print()
 
+    logger.info("Solving ...\n")
     solve_results = asp.aspsolve_hybride(
         lpoutput, topo, args.enumerate, args.brave, args.cautious, args.no_accumulation, args.no_fba, args.cplex)
 
@@ -96,7 +98,7 @@ def run_fluto(args):
     for (solumodel, lp_assignment) in solve_results:
         solution = {}
         if not args.json:
-            print("# Solution {0}\n".format(scounter))
+            print("\n## Solution {0}\n".format(scounter))
             scounter += 1
         if not args.no_fba and lp_assignment == None:
             logger.info("No positive flux solution was found")
@@ -140,8 +142,8 @@ def run_fluto(args):
         solution['Producible targets'] = prodtargets
         if len(prodtargets) > 0:
             if not args.json:
-                print("- {0} producible targets:\n\t- {1}\n".format(
-                    len(prodtargets), "\n\t- ".join(prodtargets)))
+                print("- {0} producible targets:\n  - {1}\n".format(
+                    len(prodtargets), "\n  - ".join(prodtargets)))
         else:
             if not args.json:
                 print("- no target is producible\n")
@@ -149,8 +151,8 @@ def run_fluto(args):
         solution['Unproducible targets'] = unprodtargets
         if len(unprodtargets) > 0:
             if not args.json:
-                print("- there are still {0} unproducible targets:\n\t- {1}\n".format(
-                    len(unprodtargets), "\n\t- ".join(unprodtargets)))
+                print("- there are still {0} unproducible targets:\n  - {1}\n".format(
+                    len(unprodtargets), "\n  - ".join(unprodtargets)))
         else:
             if not args.json:
                 print("- all targets are producible\n")
@@ -158,8 +160,8 @@ def run_fluto(args):
         solution['Added reactions'] = chosen_rxn
         if len(chosen_rxn) > 0:
             if not args.json:
-                print("- {0} reactions to be added:\n\t- {1}\n".format(
-                    len(chosen_rxn), "\n\t- ".join(chosen_rxn)))
+                print("- {0} reactions to be added:\n  - {1}\n".format(
+                    len(chosen_rxn), "\n  - ".join(chosen_rxn)))
         else:
             if not args.json:
                 print("- no reactions to be added\n")
@@ -167,11 +169,11 @@ def run_fluto(args):
         solution['Accumulating metabolites'] = exports
         if len(exports) > 0:
             if not args.json:
-                print("- {0} metabolites are accumulating:\n\t- {1}\n".format(
-                    len(exports), "\n\t- ".join(exports)))
+                print("- {0} metabolites are accumulating:\n  - {1}\n".format(
+                    len(exports), "\n  - ".join(exports)))
         else:
             if not args.json:
-                print("- no metabolites are accumulating\n")
+                print("- no metabolites are accumulating")
         solutions.append(solution)
     result['Solutions'] = solutions
     return result

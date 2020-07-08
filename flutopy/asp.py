@@ -59,15 +59,15 @@ class Control:
         self.solutions = []
         if brave:
             self.unique = True
-            self.clingo = clingo.Control(['--warn=none',
+            self.clingo = clingo.Control(['--warn=none', '--project',
                                           '--opt-mode=optN', '--enum-mode=brave'])
         elif cautious:
             self.unique = True
-            self.clingo = clingo.Control(['--warn=none',
+            self.clingo = clingo.Control(['--warn=none', '--project',
                                           '--opt-mode=optN', '--enum-mode=cautious'])
         else:
             self.unique = False
-            self.clingo = clingo.Control(['--warn=none',
+            self.clingo = clingo.Control(['--warn=none', '--project',
                                           '--opt-mode=optN', str(self.max)])
 
         self.clingo.add("base", [], clingolp.lp_theory.theory)
