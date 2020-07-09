@@ -39,12 +39,12 @@ def run_fluto(args):
     result['Seeds file'] = args.seeds
     result['Repair DB'] = args.repairbase
 
-    if args.handorf:
-        topo = Topology.HANDORF
+    if args.sagot:
+        topo = Topology.SAGOT
     elif args.fluto1:
         topo = Topology.FLUTO1
     else:
-        topo = Topology.SAGOT
+        topo = Topology.HANDORF
     result['Topological criterium'] = topo
 
     if args.no_fba:

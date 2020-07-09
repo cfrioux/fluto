@@ -10,7 +10,7 @@ def test_fluto1():
     args = arg_parser().parse_args(
         ['-m', 'data/toy/draft.xml',
          '-r', 'data/toy/repairdb.xml',
-         '--handorf', '--no-fba', '--json'])
+         '--no-fba', '--json'])
     print(args)
     result = run_fluto(args)
     assert result['Topological criterium'] == 'Handorf'
@@ -25,6 +25,7 @@ def test_fluto2():
     args = arg_parser().parse_args(
         ['-m', 'flutopy/tests/testdata/testdraft.xml',
          '-r', 'flutopy/tests/testdata/testrepairdb.xml',
+         '--sagot',
          '--brave', '--no-fba', '--json'])
     print(args)
     result = run_fluto(args)
@@ -40,6 +41,7 @@ def test_fluto3():
     args = arg_parser().parse_args(
         ['-m', 'flutopy/tests/testdata/testdraft.xml',
          '-r', 'flutopy/tests/testdata/testrepairdb.xml',
+         '--sagot',
          '--cautious', '--no-fba', '--json'])
     print(args)
     result = run_fluto(args)
@@ -55,6 +57,7 @@ def test_fluto4():
     args = arg_parser().parse_args(
         ['-m', 'flutopy/tests/testdata/testdraft.xml',
          '-r', 'flutopy/tests/testdata/testrepairdb.xml',
+         '--sagot',
          '--enumerate', '2',
          '--no-fba', '--json'])
     print(args)

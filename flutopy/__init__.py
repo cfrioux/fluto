@@ -52,17 +52,16 @@ def arg_parser():
 
     topo_group = parser.add_mutually_exclusive_group()
     topo_group.add_argument(
-        '--handorf',
-        help='''use scope notion of Handorf & Ebenhöh 
-                for the topological produciblity criterium,
-                default is the notion of Sagot & Acuna''',
+        '--sagot',
+        help='''use the notion of Sagot & Acuna for the topological produciblity criterium,
+                default is the scope notion of Handorf & Ebenhöh''',
         required=False, action="store_true", default=False)
 
     topo_group.add_argument(
         '--fluto1',
         help='''use scope notion of the first fluto version
                 for the topological produciblity criterium,
-                default is the notion of Sagot & Acuna''',
+                default is the scope notion of Handorf & Ebenhöh''',
         required=False, action="store_true", default=False)
 
     parser.add_argument(
