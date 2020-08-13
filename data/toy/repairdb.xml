@@ -16,7 +16,7 @@
 </listOfCompartments>
 <listOfSpecies>
   <species id="S1" name="S1" compartment="C_c" boundaryCondition="false"/>
-  <species id="S2" name="S2" compartment="C_c" boundaryCondition="false"/>
+  <species id="S3" name="S3" compartment="C_c" boundaryCondition="false"/>
   <species id="a" name="a" compartment="C_c" boundaryCondition="false"/>
   <species id="b" name="b" compartment="C_c" boundaryCondition="false"/>
   <species id="e" name="e" compartment="C_c" boundaryCondition="false"/>
@@ -26,7 +26,7 @@
 <listOfReactions>
     <reaction id="R7" name="R7" reversible="false">
           <listOfReactants>
-              <speciesReference species="S2" stoichiometry="1" />
+              <speciesReference species="S3" stoichiometry="1" />
           </listOfReactants>
           <listOfProducts>
               <speciesReference species="e" stoichiometry="1" />
