@@ -10,6 +10,7 @@ def test_fluto1():
     args = arg_parser().parse_args(
         ['-m', 'data/toy/draft.xml',
          '-r', 'data/toy/repairdb.xml',
+         '-s', 'data/toy/toposeeds.txt',
          '--no-fba', '--json'])
     print(args)
     result = run_fluto(args)
@@ -17,7 +18,7 @@ def test_fluto1():
     assert result['Flux balance criterium'] == 'OFF'
     assert result['Objective reactions'] == ["R5"]
     assert set(result['Solutions'][0]['Producible targets']) == set(["a", "c"])
-    assert set(result['Solutions'][0]['Added reactions']) == set(["R7", "R6"])
+    assert set(result['Solutions'][0]['Added reactions']) == set(["R7", "R6"]) or set(result['Solutions'][0]['Added reactions']) == set(["R8", "R6"])
     assert result['Solutions'][0]['Accumulating metabolites'] == []
 
 
