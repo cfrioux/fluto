@@ -2,7 +2,7 @@
 
 Metabolic network completion with respect to topological and linear reaction rate constraints based on the stoichiometry.
 
-Tested with Python 3.7.6.
+Tested with Python 3.6.10 and 3.7.6.
 
 So far only level 2 [SBML](http://sbml.org/Documents/Specifications) files are supported.
 
@@ -31,6 +31,12 @@ IBM provides a promotional version sufficient to solve the toy example.
 For the full version follow the [IBM installation procedure](https://www.ibm.com/support/knowledgecenter/SSSA5P_12.10.0/ilog.odms.cplex.help/CPLEX/GettingStarted/topics/set_up/Python_setup.html). e.g.
 
 - `cd /Applications/CPLEX_Studio128/cplex/python/3.6/x86-64_osx/`
+- `python setup.py install`
+
+### Package install
+
+Install the Fluto package:
+
 - `python setup.py install`
 
 ## Usage

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Copyright (c) 2018, Clemence Frioux <clemence.frioux@gmail.com>
+# Copyright (c) 2018, Clemence Frioux <clemence.frioux@inria.fr>
 #
 # This file is part of fluto.
 #
@@ -29,7 +29,7 @@ setup(
         and graph - based(TOpology) modelings of producibility.\
         More information on usage and troubleshooting on Github: https://github.com/cfrioux/fluto',
     author='Clemence Frioux',
-    author_email='clemence.frioux@gmail.com',
+    author_email='clemence.frioux@inria.fr',
     packages=['flutopy'],
     package_dir={'flutopy': 'flutopy'},
     package_data={'flutopy': ['encodings/*.lp']},
