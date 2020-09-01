@@ -121,7 +121,7 @@ def run_fluto(args):
         (solumodel, lp_assignment) = solve_results[0]
         if not args.json:
             print(
-                "\n## Reactions occurring in at least one minimal solutions (union):\n\n- ", end="")
+                "\n## Reactions occurring in at least one minimal solution (union):\n\n- ", end="")
         if not args.no_fba and lp_assignment == None:
             logger.info("No positive flux solution was found")
             result['Result'] = 'NO POSITIVE FLUX SOLUTION'
