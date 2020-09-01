@@ -93,87 +93,137 @@ def run_fluto(args):
         else:
             logger.info("No solutions found\n")
 
-    solutions = []
-    scounter = 1
-    for (solumodel, lp_assignment) in solve_results:
-        solution = {}
+    if args.cautious:
+        (solumodel, lp_assignment) = solve_results[0]
         if not args.json:
-            print("\n## Solution {0}\n".format(scounter))
-            scounter += 1
+            print(
+                "\n## Reactions occurring in all minimal solutions (intersection):\n\n- ", end="")
         if not args.no_fba and lp_assignment == None:
             logger.info("No positive flux solution was found")
             result['Result'] = 'NO POSITIVE FLUX SOLUTION'
             print(json.dumps(result))
             quit()
 
-        prodtargets = []
-        unprodtargets = []
         chosen_rxn = []
-        exports = []
 
         for elem in solumodel:
-            if elem.predicate == 'producible_target':
-                prodtargets.append(elem.arguments[0][1:-1])
-            elif elem.predicate == 'unreachable':
-                unprodtargets.append(elem.arguments[0][1:-1])
-            elif elem.predicate == 'completion':
+            if elem.predicate == 'completion':
                 chosen_rxn.append(elem.arguments[0][1:-1])
-            elif elem.predicate == 'acc':
-                exports.append(elem.arguments[0][1:-1])
-            else:
-                logger.warning('Unexpected atom in solution {0}'.format(elem))
 
-        if not args.no_fba:
-            try:
-                solution['Flux'] = lp_assignment[0]
-            except Exception as e:
-                logger.error(
-                    'Unexpected solver value: {0}'.format(lp_assignment[0]))
-                logger.error(e)
-                return result
-
-            if not args.json:
-                print("- flux value in objective function(s): {0}\n".format(
-                    lp_assignment[0]))
-            if lp_assignment[0] <= 1e-5:
-                logger.warning('No flux in objective reaction: {0}\n'.format(
-                    lp_assignment[0]))
-
-        solution['Producible targets'] = prodtargets
-        if len(prodtargets) > 0:
-            if not args.json:
-                print("- {0} producible targets:\n  - {1}\n".format(
-                    len(prodtargets), "\n  - ".join(prodtargets)))
-        else:
-            if not args.json:
-                print("- no target is producible\n")
-
-        solution['Unproducible targets'] = unprodtargets
-        if len(unprodtargets) > 0:
-            if not args.json:
-                print("- there are still {0} unproducible targets:\n  - {1}\n".format(
-                    len(unprodtargets), "\n  - ".join(unprodtargets)))
-        else:
-            if not args.json:
-                print("- all targets are producible\n")
-
-        solution['Added reactions'] = chosen_rxn
+        result['Intersection'] = chosen_rxn
         if len(chosen_rxn) > 0:
             if not args.json:
-                print("- {0} reactions to be added:\n  - {1}\n".format(
-                    len(chosen_rxn), "\n  - ".join(chosen_rxn)))
+                print("\n- ".join(chosen_rxn))
         else:
             if not args.json:
-                print("- no reactions to be added\n")
+                print("the intersection is empty\n")
+    elif args.brave:
+        (solumodel, lp_assignment) = solve_results[0]
+        if not args.json:
+            print(
+                "\n## Reactions occurring in at least one minimal solutions (union):\n\n- ", end="")
+        if not args.no_fba and lp_assignment == None:
+            logger.info("No positive flux solution was found")
+            result['Result'] = 'NO POSITIVE FLUX SOLUTION'
+            print(json.dumps(result))
+            quit()
 
-        solution['Accumulating metabolites'] = exports
-        if len(exports) > 0:
+        chosen_rxn = []
+
+        for elem in solumodel:
+            if elem.predicate == 'completion':
+                chosen_rxn.append(elem.arguments[0][1:-1])
+
+        result['Union'] = chosen_rxn
+        if len(chosen_rxn) > 0:
             if not args.json:
-                print("- {0} metabolites are accumulating:\n  - {1}\n".format(
-                    len(exports), "\n  - ".join(exports)))
+                print("\n- ".join(chosen_rxn))
         else:
             if not args.json:
-                print("- no metabolites are accumulating")
-        solutions.append(solution)
-    result['Solutions'] = solutions
+                print("the union is empty\n")
+    else:
+        solutions = []
+        scounter = 1
+        for (solumodel, lp_assignment) in solve_results:
+            solution = {}
+            if not args.json:
+                print("\n## Solution {0}\n".format(scounter))
+                scounter += 1
+            if not args.no_fba and lp_assignment == None:
+                logger.info("No positive flux solution was found")
+                result['Result'] = 'NO POSITIVE FLUX SOLUTION'
+                print(json.dumps(result))
+                quit()
+
+            prodtargets = []
+            unprodtargets = []
+            chosen_rxn = []
+            exports = []
+
+            for elem in solumodel:
+                if elem.predicate == 'producible_target':
+                    prodtargets.append(elem.arguments[0][1:-1])
+                elif elem.predicate == 'unreachable':
+                    unprodtargets.append(elem.arguments[0][1:-1])
+                elif elem.predicate == 'completion':
+                    chosen_rxn.append(elem.arguments[0][1:-1])
+                elif elem.predicate == 'acc':
+                    exports.append(elem.arguments[0][1:-1])
+                else:
+                    logger.warning(
+                        'Unexpected atom in solution {0}'.format(elem))
+
+            if not args.no_fba:
+                try:
+                    solution['Flux'] = lp_assignment[0]
+                except Exception as e:
+                    logger.error(
+                        'Unexpected solver value: {0}'.format(lp_assignment[0]))
+                    logger.error(e)
+                    return result
+
+                if not args.json:
+                    print("- flux value in objective function(s): {0}\n".format(
+                        lp_assignment[0]))
+                if lp_assignment[0] <= 1e-5:
+                    logger.warning('No flux in objective reaction: {0}\n'.format(
+                        lp_assignment[0]))
+
+            solution['Producible targets'] = prodtargets
+            if len(prodtargets) > 0:
+                if not args.json:
+                    print("- {0} producible targets:\n  - {1}\n".format(
+                        len(prodtargets), "\n  - ".join(prodtargets)))
+            else:
+                if not args.json:
+                    print("- no target is producible\n")
+
+            solution['Unproducible targets'] = unprodtargets
+            if len(unprodtargets) > 0:
+                if not args.json:
+                    print("- there are still {0} unproducible targets:\n  - {1}\n".format(
+                        len(unprodtargets), "\n  - ".join(unprodtargets)))
+            else:
+                if not args.json:
+                    print("- all targets are producible\n")
+
+            solution['Added reactions'] = chosen_rxn
+            if len(chosen_rxn) > 0:
+                if not args.json:
+                    print("- {0} reactions to be added:\n  - {1}\n".format(
+                        len(chosen_rxn), "\n  - ".join(chosen_rxn)))
+            else:
+                if not args.json:
+                    print("- no reactions to be added\n")
+
+            solution['Accumulating metabolites'] = exports
+            if len(exports) > 0:
+                if not args.json:
+                    print("- {0} metabolites are accumulating:\n  - {1}\n".format(
+                        len(exports), "\n  - ".join(exports)))
+            else:
+                if not args.json:
+                    print("- no metabolites are accumulating")
+            solutions.append(solution)
+        result['Solutions'] = solutions
     return result

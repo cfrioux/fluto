@@ -33,9 +33,7 @@ def test_fluto2():
     assert result['Reasoning mode'] == 'BRAVE'
     assert result['Flux balance criterium'] == 'OFF'
     assert result['Objective reactions'] == ["R_exportT"]
-    assert result['Solutions'][0]['Producible targets'] == ["T"]
-    assert set(result['Solutions'][0]['Added reactions']) == set(["A1", "A2"])
-    assert result['Solutions'][0]['Accumulating metabolites'] == []
+    assert set(result['Union']) == set(["A1", "A2"])
 
 
 def test_fluto3():
@@ -49,9 +47,7 @@ def test_fluto3():
     assert result['Reasoning mode'] == 'CAUTIOUS'
     assert result['Flux balance criterium'] == 'OFF'
     assert result['Objective reactions'] == ["R_exportT"]
-    assert result['Solutions'][0]['Producible targets'] == ["T"]
-    assert result['Solutions'][0]['Added reactions'] == []
-    assert result['Solutions'][0]['Accumulating metabolites'] == []
+    assert result['Intersection'] == []
 
 
 def test_fluto4():
