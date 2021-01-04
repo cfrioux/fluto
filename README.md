@@ -6,6 +6,12 @@ Tested with Python 3.6.10 and 3.7.6.
 
 So far only level 2 [SBML](http://sbml.org/Documents/Specifications) files are supported.
 
+**If you use Fluto, please cite:**
+
+Frioux, C., Schaub, T., Schellhorn, S., Siegel, A., Wanko, P. (2019), Hybrid metabolic network completion, TPLP, 19(1), 83–108 [https://dx.doi.org/10.1017/s1471068418000455](https://dx.doi.org/10.1017/s1471068418000455) 
+
+[PDF of the manuscript](https://www.cs.uni-potsdam.de/wv/publications/DBLP_journals/tplp/FriouxSSSW19.pdf).
+
 ## Installation and requirements
 
 A good practice is to perform the Python installations into a [virtualenv](https://virtualenv.pypa.io/en/stable/installation/) or a [conda environment](https://conda.io/docs/user-guide/tasks/manage-environments.html)
