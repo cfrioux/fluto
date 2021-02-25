@@ -50,7 +50,7 @@ Install the Fluto package:
 ```text
 ❯ fluto -h
 usage: fluto [-h] -m MODEL [-r REPAIRBASE] [-s SEEDS] [-e N | -b | -c]
-             [--handorf | --fluto1] [--no-accumulation] [--no-fba] [--cplex]
+             [--sagot | --fluto1] [--no-accumulation] [--no-fba] [--cplex]
              [--json]
 
 Performs hybrid (topological/flux) gap-filling
@@ -69,12 +69,12 @@ optional arguments:
                         all solutions
   -b, --brave           compute the union of all solutions
   -c, --cautious        compute the intersection of all solutions
-  --handorf             use scope notion of Handorf & Ebenhöh for the
-                        topological produciblity criterium, default is the
-                        notion of Sagot & Acuna
+  --sagot               use the notion of Sagot & Acuna for the topological
+                        produciblity criterium, default is the scope notion of
+                        Handorf & Ebenhöh
   --fluto1              use scope notion of the first fluto version for the
                         topological produciblity criterium, default is the
-                        notion of Sagot & Acuna
+                        scope notion of Handorf & Ebenhöh
   --no-accumulation     allow the accumulation of metabolites, per default the
                         accumulation of metabolites is allowed
   --no-fba              turn off flux balance constraints
