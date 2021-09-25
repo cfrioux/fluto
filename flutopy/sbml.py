@@ -1,10 +1,12 @@
 #!/usr/bin/python
 
 
-import time
-import xml.etree.ElementTree as etree
-import clingo
 import logging
+import sys
+import xml.etree.ElementTree as etree
+
+import clingo
+
 logger = logging.getLogger(__name__)
 
 
@@ -134,17 +136,17 @@ def readSBMLnetwork(filename, prefix):
                     species_data[speciesId] = {
                         'compartment': speciesCp, 'boundaryCondition': speciesBC}
                 else:
-                    logger.error('Error: compound ' +
-                                 speciesId + 'is defined twice')
-                    quit()
+                    logger.error(
+                        'Error: compound %s is defined twice', speciesId)
+                    sys.exit()
             else:
                 if not speciesId in species_data:
                     species_data[speciesId] = {
                         'compartment': speciesCp, 'boundaryCondition': speciesBC}
                 else:
-                    logger.error('Error: compound ' +
-                                 speciesId + 'is defined twice')
-                    quit()
+                    logger.error(
+                        'Error: compound %s is defined twice', speciesId)
+                    sys.exit()
 
     # get list of reactions
     for e in listOfReactions:
@@ -167,7 +169,7 @@ def readSBMLnetwork(filename, prefix):
 
             # obtain list of parameters for linear programming part
             listOfParameters = get_listOfParameters(e)
-            if listOfParameters == None:
+            if listOfParameters is None:
                 if prefix == 'r':
                     if e.attrib.get("reversible") == "false":
                         lb = 0
@@ -176,10 +178,10 @@ def readSBMLnetwork(filename, prefix):
                     ub = default_ub
                     oc = default_oc
                     logger.warning(
-                        'Set default parameters for repairDB reaction {0}'.format(reactionId))
+                        "Set default parameters for repairDB reaction %s", reactionId)
                 else:
                     logger.error(
-                        "Error in draft reaction {0}: listOfParameters = None".format(reactionId))
+                        "Error in draft reaction %s: listOfParameters = None", reactionId)
                     quit()
             else:
                 for ee in listOfParameters:
@@ -203,23 +205,24 @@ def readSBMLnetwork(filename, prefix):
 
             # check whether a parameter is found for lb, ub and oc, otherwise
             # set it to default value + tell user
-            if lb == None:
+            if lb is None:
                 lb = default_lb
-                logger.warning("No lower bound defined for reaction {0}. Set lower bound to default value {1}.".format(
-                    reactionId, default_lb))
+                logger.warning(
+                    "No lower bound defined for reaction %s. Set lower bound to default value %s.")
 
-            if ub == None:
+            if ub is None:
                 ub = default_ub
-                logger.warning("No upper bound defined for reaction {0}. Set upper bound to default value {1}.".format(
-                    reactionId, default_ub))
+                logger.warning(
+                    "No upper bound defined for reaction %s. Set upper bound to default value %s.", reactionId, default_ub)
 
             if (lb < 0 and ub > 0) or (lb > 0 and ub < 0):
-                lpfacts.append(clingo.Function('reversible', [clingo.String(reactionId)]))
+                lpfacts.append(clingo.Function(
+                    'reversible', [clingo.String(reactionId)]))
 
-            if oc == None:
+            if oc is None:
                 oc = default_oc
-                logger.warn("No objective coefficient defined for reaction {0}. Set objective coefficient to default value {1}.".format(
-                    reactionId, default_oc))
+                logger.warning(
+                    "No objective coefficient defined for reaction %s. Set objective coefficient to default value %s.", reactionId, default_oc)
 
             # make facts for an objective reaction
             if obj_fnct and prefix == 'd':
@@ -243,15 +246,15 @@ def readSBMLnetwork(filename, prefix):
             listOfReactants = get_listOfReactants(e)
 
             # warn user if no reactants
-            if listOfReactants == None:
+            if listOfReactants is None:
                 logger.warning(
-                    "Warning: {0} listOfReactants=None".format(reactionId))
+                    "Warning: %s listOfReactants=None", reactionId)
 
                 # exit with error if no reactant for an objective function
-                if obj_fnct == True:
+                if obj_fnct is True:
                     logger.error(
-                        "error: {0} is used in the objective function and has no reactants".format(reactionId))
-                    quit()
+                        "error: %s is used in the objective function and has no reactants", reactionId)
+                    sys.exit()
 
             # else make facts for each reactant
             else:
@@ -268,8 +271,8 @@ def readSBMLnetwork(filename, prefix):
                                 'metabolite', [clingo.String(reactantId), clingo.Function('t')]))
                         except KeyError:
                             logger.error(
-                                'Error: reactant {0} of the objective reaction {1} is not defined in list of species'.format(reactantId, reactionId))
-                            quit()
+                                "Error: reactant %s of the objective reaction %s is not defined in list of species", reactantId, reactionId)
+                            sys.exit()
                         # add it in added species if it was not already in there
                         if not reactantId in added_species:
                             added_species.append(reactantId)
@@ -287,8 +290,7 @@ def readSBMLnetwork(filename, prefix):
             listOfProducts = get_listOfProducts(e)
             # warn user if no products
             if listOfProducts == None:
-                logger.warning(
-                    "Warning: {0} listOfProducts=None".format(reactionId))
+                logger.warning("Warning: %s listOfProducts=None", reactionId)
             else:
                 for p in listOfProducts:
                     productId = p.attrib.get("species")
@@ -314,7 +316,6 @@ def readSBMLnetwork(filename, prefix):
                             added_species.append(productId)
                         except KeyError:
                             added_species.append(productId)
-                            pass
 
     # some checks to alert the user
     if prefix == "d":
@@ -324,7 +325,7 @@ def readSBMLnetwork(filename, prefix):
             quit()
         # several reactions have an objective reaction 1 : warn user, might not be wanted
         elif len(objective_reactions) > 1:
-            logger.warning("Warning: > 1 objective reactions are defined " +
+            logger.warning("Warning: > 1 objective reactions are defined %s",
                            str(objective_reactions))
         # no seeds are given
         if len(seeds) == 0:
@@ -339,14 +340,14 @@ def readSBMLnetwork(filename, prefix):
             logger.warning('REPAIR NETWORK')
         logger.warning(
             'Warning: your list of species is not consistent with the list of reactants and products occurring in every reaction')
-        extra_los = [x for x in species_data.keys() if not x in added_species]
+        extra_los = [x for x in species_data if not x in added_species]
         extra_reactant_or_product = [
-            x for x in added_species if not x in species_data.keys()]
+            x for x in added_species if not x in species_data]
         if extra_los != []:
             logger.warning(
-                'Compounds defined in listOfSpecies but not used in reactions: ' + str(extra_los))
+                'Compounds defined in listOfSpecies but not used in reactions: %s', str(extra_los))
         if extra_reactant_or_product != []:
-            logger.warning('Compounds defined as reactants or products in listOfReactions but not in listOfSpecies: ' +
+            logger.warning('Compounds defined as reactants or products in listOfReactions but not in listOfSpecies: %s',
                            str(extra_reactant_or_product))
         logger.warning(
             'This may lead to altered results during solving, you should correct it.')

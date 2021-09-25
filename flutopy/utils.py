@@ -1,11 +1,15 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from enum import Enum, unique
-import clingo
-import os
-import tempfile
-from flutopy import sbml
 import logging
+import os
+import sys
+import tempfile
+from enum import Enum, unique
+
+import clingo
+
+from flutopy import sbml
+
 logger = logging.getLogger(__name__)
 
 
@@ -36,12 +40,12 @@ def make_instance_fluto(model, seeds_sbml, repair=None):
                                      suffix='.lp',
                                      delete=False) as tmp:
         try:
-            draftnet, seeds, targets, obj_rxn = sbml.readSBMLnetwork(
+            draftnet, seeds, _targets, obj_rxn = sbml.readSBMLnetwork(
                 model, 'd')
         except IOError:
             logger.error(
-                'Error while opening {0}. Please check the input file'.format(model))
-            quit()
+                'Error while opening %s. Please check the input file', model)
+            sys.exit()
 
         for fact in draftnet:
             tmp.write(str(fact) + '.\n')
@@ -53,19 +57,19 @@ def make_instance_fluto(model, seeds_sbml, repair=None):
                                for seed in seeds]
                     for fact in lpseeds:
                         tmp.write(str(fact) + '.\n')
-                logger.info('{0} topological seed(s) was(were) provided'.format(
-                    len(seeds)))
+                logger.info(
+                    '%s topological seed(s) was(were) provided', len(seeds))
             except:
                 logger.warning(
                     "seeds could not be added to the problem. Check the inputs.")
 
-        if repair != None:
+        if repair is not None:
             try:
                 repairnet = sbml.readSBMLnetwork(repair, 'r')[0]
             except IOError:
                 logger.error(
-                    'Error while opening {0}. Please check the input file'.format(repair))
-                quit()
+                    'Error while opening %s. Please check the input file', repair)
+                sys.exit()
 
             for fact in repairnet:
                 tmp.write(str(fact) + '.\n')

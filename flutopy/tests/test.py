@@ -1,8 +1,8 @@
-import json
-from subprocess import PIPE
-from flutopy.fluto import run_fluto
-from flutopy.__init__ import arg_parser
 import sys
+
+from flutopy.__init__ import arg_parser
+from flutopy.fluto import run_fluto
+
 sys.path.append('../')
 
 
@@ -18,7 +18,8 @@ def test_fluto1():
     assert result['Flux balance criterium'] == 'OFF'
     assert result['Objective reactions'] == ["R5"]
     assert set(result['Solutions'][0]['Producible targets']) == set(["a", "c"])
-    assert set(result['Solutions'][0]['Added reactions']) == set(["R7", "R6"]) or set(result['Solutions'][0]['Added reactions']) == set(["R8", "R6"])
+    assert set(result['Solutions'][0]['Added reactions']) == set(["R7", "R6"]) or set(
+        result['Solutions'][0]['Added reactions']) == set(["R8", "R6"])
     assert result['Solutions'][0]['Accumulating metabolites'] == []
 
 
