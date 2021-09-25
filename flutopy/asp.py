@@ -24,6 +24,8 @@ FBA = ROOT + DIR_ASP_SOURCES + 'fba.lp'
 
 def aspsolve_hybride(instance, topo: Topology, enumerate: int, brave: bool, cautious: bool, no_accumulation: bool, no_fba: bool, cplex: bool):
 
+    clingoLP = Control(enumerate, cplex, brave, cautious)
+
     with open(COMMON_FLUTO, 'r') as f:
         problem = f.read()
     if topo == Topology.HANDORF:
@@ -40,12 +42,10 @@ def aspsolve_hybride(instance, topo: Topology, enumerate: int, brave: bool, caut
         problem += f.read()
 
     if not no_fba:
-        with open(FBA, 'r') as f:
-            problem += f.read()
+        clingolp.lp_theory.rewrite(clingoLP.clingo, [FBA])
         if no_accumulation:
             problem += "no_accumulation."
 
-    clingoLP = Control(enumerate, cplex, brave, cautious)
     clingoLP.add(problem)
 
     solutions = clingoLP.solve()
@@ -81,7 +81,6 @@ class Control:
                                  show=True,
                                  accuracy=1,
                                  epsilon=1*10**-3,
-                                 nstrict=True,
                                  trace=False,
                                  core_confl=20,
                                  prop_heur=0,
@@ -89,13 +88,12 @@ class Control:
                                  debug=0)
 
         self.clingo.register_propagator(self.prop)
-        self.clingo.ground([("base", [])])
 
     def add(self, prg):
-        self.clingo.add("p", [], prg)
+        self.clingo.add("base", [], prg)
 
     def solve(self):
-        self.clingo.ground([("p", [])])
+        self.clingo.ground([("base", [])])
 
         _solve_result = self.clingo.solve(on_model=self.copy_assignment)
         #    if solve_result.satisfiable:

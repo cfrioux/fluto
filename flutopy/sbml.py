@@ -129,7 +129,7 @@ def readSBMLnetwork(filename, prefix):
             if speciesBC == "true" and prefix == 'd':
                 seeds.append(speciesId)
                 lpfacts.append(clingo.Function(
-                    'metabolite', [speciesId, clingo.Function('s')]))
+                    'metabolite', [clingo.String(speciesId), clingo.Function('s')]))
                 if not speciesId in species_data:
                     species_data[speciesId] = {
                         'compartment': speciesCp, 'boundaryCondition': speciesBC}
@@ -214,7 +214,7 @@ def readSBMLnetwork(filename, prefix):
                     reactionId, default_ub))
 
             if (lb < 0 and ub > 0) or (lb > 0 and ub < 0):
-                lpfacts.append(clingo.Function('reversible', [reactionId]))
+                lpfacts.append(clingo.Function('reversible', [clingo.String(reactionId)]))
 
             if oc == None:
                 oc = default_oc
@@ -224,20 +224,20 @@ def readSBMLnetwork(filename, prefix):
             # make facts for an objective reaction
             if obj_fnct and prefix == 'd':
                 lpfacts.append(clingo.Function(
-                    'reaction', [reactionId, clingo.Function('t')]))
+                    'reaction', [clingo.String(reactionId), clingo.Function('t')]))
                 lpfacts.append(clingo.Function(
-                    'objective', [reactionId, clingo.Function('t')]))
+                    'objective', [clingo.String(reactionId), clingo.Function('t')]))
                 lpfacts.append(clingo.Function(
-                    'bounds', [reactionId, str(lb), str(ub)]))
+                    'bounds', [clingo.String(reactionId), clingo.String(str(lb)), clingo.String(str(ub))]))
 
             # make facts for a regular reaction
             else:
                 lpfacts.append(clingo.Function(
-                    'reaction', [reactionId, clingo.Function(prefix)]))
+                    'reaction', [clingo.String(reactionId), clingo.Function(prefix)]))
                 lpfacts.append(clingo.Function(
-                    'objective', [reactionId, clingo.Function(prefix)]))
+                    'objective', [clingo.String(reactionId), clingo.Function(prefix)]))
                 lpfacts.append(clingo.Function(
-                    'bounds', [reactionId, str(lb), str(ub)]))
+                    'bounds', [clingo.String(reactionId), clingo.String(str(lb)), clingo.String(str(ub))]))
 
             # get reactants of considered reactin
             listOfReactants = get_listOfReactants(e)
@@ -260,12 +260,12 @@ def readSBMLnetwork(filename, prefix):
                     # define reactant diferently if reaction is objective function
                     if obj_fnct and prefix == 'd':
                         targets.append(reactantId)
-                        lpfacts.append(clingo.Function('rct', [reactantId, r.attrib.get(
-                            "stoichiometry"), reactionId, clingo.Function('t')]))
+                        lpfacts.append(clingo.Function('rct', [clingo.String(reactantId), clingo.String(r.attrib.get(
+                            "stoichiometry")), clingo.String(reactionId), clingo.Function('t')]))
 
                         try:
                             lpfacts.append(clingo.Function(
-                                'metabolite', [reactantId, clingo.Function('t')]))
+                                'metabolite', [clingo.String(reactantId), clingo.Function('t')]))
                         except KeyError:
                             logger.error(
                                 'Error: reactant {0} of the objective reaction {1} is not defined in list of species'.format(reactantId, reactionId))
@@ -276,11 +276,11 @@ def readSBMLnetwork(filename, prefix):
 
                     # else just add the reactant
                     else:
-                        lpfacts.append(clingo.Function('rct', [reactantId, r.attrib.get(
-                            "stoichiometry"), reactionId, clingo.Function(prefix)]))
+                        lpfacts.append(clingo.Function('rct', [clingo.String(reactantId), clingo.String(r.attrib.get(
+                            "stoichiometry")), clingo.String(reactionId), clingo.Function(prefix)]))
                         if not reactantId in added_species:
                             lpfacts.append(clingo.Function(
-                                'metabolite', [reactantId, clingo.Function(prefix)]))
+                                'metabolite', [clingo.String(reactantId), clingo.Function(prefix)]))
                             added_species.append(reactantId)
 
             # get products of considered reaction
@@ -294,15 +294,15 @@ def readSBMLnetwork(filename, prefix):
                     productId = p.attrib.get("species")
                     # define product diferently if reaction is objective function
                     if obj_fnct and prefix == 'd':
-                        lpfacts.append(clingo.Function('prd', [productId, p.attrib.get(
-                            "stoichiometry"), reactionId, clingo.Function('t')]))
+                        lpfacts.append(clingo.Function('prd', [clingo.String(productId), clingo.String(p.attrib.get(
+                            "stoichiometry")), clingo.String(reactionId), clingo.Function('t')]))
                         # lpfacts.append(clingo.Function('t_compound', [productId, p.attrib.get("stoichiometry"), reactionId]))
                         # add the t_compound
 
                     # else just add the product
                     else:
-                        lpfacts.append(clingo.Function('prd', [productId, p.attrib.get(
-                            "stoichiometry"), reactionId, clingo.Function(prefix)]))
+                        lpfacts.append(clingo.Function('prd', [clingo.String(productId), clingo.String(p.attrib.get(
+                            "stoichiometry")), clingo.String(reactionId), clingo.Function(prefix)]))
                         # add the r_compound or d_compound in the facts if not already done for this compound
 
                     # add the r_compound or d_compound if not already done for this compound
@@ -310,7 +310,7 @@ def readSBMLnetwork(filename, prefix):
 
                         try:
                             lpfacts.append(clingo.Function(
-                                'metabolite', [productId, clingo.Function(prefix)]))
+                                'metabolite', [clingo.String(productId), clingo.Function(prefix)]))
                             added_species.append(productId)
                         except KeyError:
                             added_species.append(productId)
