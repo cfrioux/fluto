@@ -1,13 +1,16 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from flutopy.utils import Topology
+import logging
+
 import clingo
 import clingolp
 from clingolp.lp_theory import Propagator as LpPropagator
-from clyngor.as_pyasp import TermSet, Atom
+from clyngor.as_pyasp import Atom, TermSet
 from clyngor.parsing import Parser
-import logging
+
+from flutopy.utils import Topology
+
 logger = logging.getLogger(__name__)
 
 # Root
@@ -22,30 +25,30 @@ TOPO_FLUTO1 = ROOT + DIR_ASP_SOURCES + 'topo-fluto1.lp'
 FBA = ROOT + DIR_ASP_SOURCES + 'fba.lp'
 
 
-def aspsolve_hybride(instance, topo: Topology, enumerate: int, brave: bool, cautious: bool, no_accumulation: bool, no_fba: bool, cplex: bool):
+def aspsolve_hybride(instance, topo: Topology, n: int, brave: bool, cautious: bool, no_accumulation: bool, no_fba: bool, cplex: bool):
 
-    with open(COMMON_FLUTO, 'r') as f:
+    clingoLP = Control(n, cplex, brave, cautious)
+
+    with open(COMMON_FLUTO, 'r', encoding="utf-8") as f:
         problem = f.read()
     if topo == Topology.HANDORF:
-        with open(TOPO_HANDORF, 'r') as f:
+        with open(TOPO_HANDORF, 'r', encoding="utf-8") as f:
             problem += f.read()
     elif topo == Topology.FLUTO1:
-        with open(TOPO_FLUTO1, 'r') as f:
+        with open(TOPO_FLUTO1, 'r', encoding="utf-8") as f:
             problem += f.read()
     else:
-        with open(TOPO_SAGOT, 'r') as f:
+        with open(TOPO_SAGOT, 'r', encoding="utf-8") as f:
             problem += f.read()
 
-    with open(instance, 'r') as f:
+    with open(instance, 'r', encoding="utf-8") as f:
         problem += f.read()
 
     if not no_fba:
-        with open(FBA, 'r') as f:
-            problem += f.read()
+        clingolp.lp_theory.rewrite(clingoLP.clingo, [FBA])
         if no_accumulation:
             problem += "no_accumulation."
 
-    clingoLP = Control(enumerate, cplex, brave, cautious)
     clingoLP.add(problem)
 
     solutions = clingoLP.solve()
@@ -81,7 +84,6 @@ class Control:
                                  show=True,
                                  accuracy=1,
                                  epsilon=1*10**-3,
-                                 nstrict=True,
                                  trace=False,
                                  core_confl=20,
                                  prop_heur=0,
@@ -89,13 +91,12 @@ class Control:
                                  debug=0)
 
         self.clingo.register_propagator(self.prop)
-        self.clingo.ground([("base", [])])
 
     def add(self, prg):
-        self.clingo.add("p", [], prg)
+        self.clingo.add("base", [], prg)
 
     def solve(self):
-        self.clingo.ground([("p", [])])
+        self.clingo.ground([("base", [])])
 
         _solve_result = self.clingo.solve(on_model=self.copy_assignment)
         #    if solve_result.satisfiable:
