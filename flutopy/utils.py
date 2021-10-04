@@ -1,15 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import logging
-import os
-import sys
-import tempfile
 from enum import Enum, unique
-
 import clingo
-
+import os
+import tempfile
 from flutopy import sbml
-
+import logging
 logger = logging.getLogger(__name__)
 
 
@@ -40,12 +36,12 @@ def make_instance_fluto(model, seeds_sbml, repair=None):
                                      suffix='.lp',
                                      delete=False) as tmp:
         try:
-            draftnet, seeds, _targets, obj_rxn = sbml.readSBMLnetwork(
+            draftnet, seeds, targets, obj_rxn = sbml.readSBMLnetwork(
                 model, 'd')
         except IOError:
             logger.error(
-                'Error while opening %s. Please check the input file', model)
-            sys.exit()
+                'Error while opening {0}. Please check the input file'.format(model))
+            quit()
 
         for fact in draftnet:
             tmp.write(str(fact) + '.\n')
@@ -57,19 +53,19 @@ def make_instance_fluto(model, seeds_sbml, repair=None):
                                for seed in seeds]
                     for fact in lpseeds:
                         tmp.write(str(fact) + '.\n')
-                logger.info(
-                    '%s topological seed(s) was(were) provided', len(seeds))
+                logger.info('{0} topological seed(s) was(were) provided'.format(
+                    len(seeds)))
             except:
                 logger.warning(
                     "seeds could not be added to the problem. Check the inputs.")
 
-        if repair is not None:
+        if repair != None:
             try:
                 repairnet = sbml.readSBMLnetwork(repair, 'r')[0]
             except IOError:
                 logger.error(
-                    'Error while opening %s. Please check the input file', repair)
-                sys.exit()
+                    'Error while opening {0}. Please check the input file'.format(repair))
+                quit()
 
             for fact in repairnet:
                 tmp.write(str(fact) + '.\n')
