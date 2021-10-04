@@ -4,19 +4,22 @@ Functions:
 main  -- Main function starting the fluto application.
 """
 
-import argparse
-import json
-
-from flutopy import utils
 from flutopy.fluto import run_fluto
+import flutopy.utils as utils
+import json
+import argparse
 
+message = """
+Performs hybrid (topological/flux) gap-filling"""
+
+requires = """
+requires Python, ClingoLP and CPLEX packages, see README.md
+"""
 
 
 def arg_parser():
     parser = argparse.ArgumentParser(
-        description="Performs hybrid (topological/flux) gap-filling",
-        epilog="requires Python, ClingoLP and CPLEX packages, see README.md",
-        prog='fluto')
+        description=message, epilog=requires, prog='fluto')  # , usage=msg()
     parser.add_argument(
         "-m", "--model",
         help="organism metabolic model in SBML format",

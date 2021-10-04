@@ -61,13 +61,13 @@ def run_fluto(args):
     elif args.cautious:
         result['Reasoning mode'] = 'CAUTIOUS'
     else:
-        result['Reasoning mode'] = f"ENUMERATE {args.enumerate}"
+        result['Reasoning mode'] = 'ENUMERATE {0}'.format(args.enumerate)
 
     if not args.json:
-        print(f"Model file: {args.model}")
+        print("Model file: {0}".format(args.model))
         print("Objective reaction(s): " + ",".join(objective_reactions))
-        print("Seeds file: {args.seeds}")
-        print("Repair DB: {args.repairbase}\n")
+        print("Seeds file: {0}".format(args.seeds))
+        print("Repair DB: {0}\n".format(args.repairbase))
         print('Topological criterium: {0}'.format(
             result['Topological criterium']))
         if args.brave:
@@ -75,7 +75,7 @@ def run_fluto(args):
         elif args.cautious:
             print("Reasoning mode: CAUTIOUS")
         else:
-            print("Reasoning mode: ENUMERATE {args.enumerate}")
+            print("Reasoning mode: ENUMERATE {0}".format(args.enumerate))
 
         print('Flux balance criterium: {0}'.format(
             result['Flux balance criterium']))
@@ -89,7 +89,7 @@ def run_fluto(args):
 
     if not args.json:
         if len(solve_results) > 0:
-            logger.info("%s solutions found\n", str(len(solve_results)))
+            logger.info(str(len(solve_results)) + " solutions found\n")
         else:
             logger.info("No solutions found\n")
 
@@ -98,7 +98,7 @@ def run_fluto(args):
         if not args.json:
             print(
                 "\n## Reactions occurring in all minimal solutions (intersection):\n\n- ", end="")
-        if not args.no_fba and lp_assignment is None:
+        if not args.no_fba and lp_assignment == None:
             logger.info("No positive flux solution was found")
             result['Result'] = 'NO POSITIVE FLUX SOLUTION'
             print(json.dumps(result))
@@ -147,9 +147,9 @@ def run_fluto(args):
         for (solumodel, lp_assignment) in solve_results:
             solution = {}
             if not args.json:
-                print(f"\n## Solution {scounter}\n")
+                print("\n## Solution {0}\n".format(scounter))
                 scounter += 1
-            if not args.no_fba and lp_assignment is None:
+            if not args.no_fba and lp_assignment == None:
                 logger.info("No positive flux solution was found")
                 result['Result'] = 'NO POSITIVE FLUX SOLUTION'
                 print(json.dumps(result))
@@ -171,14 +171,14 @@ def run_fluto(args):
                     exports.append(elem.arguments[0][1:-1])
                 else:
                     logger.warning(
-                        "Unexpected atom in solution %s", elem)
+                        'Unexpected atom in solution {0}'.format(elem))
 
             if not args.no_fba:
                 try:
                     solution['Flux'] = lp_assignment[0]
                 except Exception as e:
                     logger.error(
-                        'Unexpected solver value: %s', lp_assignment[0])
+                        'Unexpected solver value: {0}'.format(lp_assignment[0]))
                     logger.error(e)
                     return result
 
@@ -186,8 +186,8 @@ def run_fluto(args):
                     print("- flux value in objective function(s): {0}\n".format(
                         lp_assignment[0]))
                 if lp_assignment[0] <= 1e-5:
-                    logger.warning(
-                        'No flux in objective reaction: %s\n', lp_assignment[0])
+                    logger.warning('No flux in objective reaction: {0}\n'.format(
+                        lp_assignment[0]))
 
             solution['Producible targets'] = prodtargets
             if len(prodtargets) > 0:
